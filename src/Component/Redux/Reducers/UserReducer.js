@@ -9,6 +9,7 @@ import {
   CLOSE_DAILOG,
   NEW_POST,
   FETCH_ALL_POSTS,
+  REMOVE_POST,
 } from "../Actions/UserAction";
 
 const initialState = {
@@ -64,6 +65,9 @@ export function UserReducer(state = initialState, action) {
       return { ...state, newPosts: action.payload, openDailogData: false };
 
     case FETCH_ALL_POSTS:
+      return { ...state, fetchPosts: action.payload };
+
+    case REMOVE_POST:
       return { ...state, fetchPosts: action.payload };
     default:
       return state;
