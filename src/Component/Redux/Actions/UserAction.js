@@ -10,6 +10,7 @@ export const OPEN_DAILOG = "OPEN_DAILOG";
 export const CLOSE_DAILOG = "CLOSE_DAILOG";
 export const NEW_POST = "NEW_POST";
 export const FETCH_ALL_POSTS = "FETCH_ALL_POSTS";
+export const REMOVE_POST = "REMOVE_POST";
 
 export const fetchUser = (snapValue) => {
   return {
@@ -75,5 +76,12 @@ export const fetchAllPosts = (postData) => {
   return {
     type: FETCH_ALL_POSTS,
     payload: postData,
+  };
+};
+
+export const RemovePost = (KEY) => {
+  return {
+    type: REMOVE_POST,
+    payload: KEY,
   };
 };

@@ -71,6 +71,7 @@ export default function WritePost() {
   const currentUser = useSelector(
     (state) => state.UserReducer.currentfetchedUser
   );
+  let userPic = currentUser.photoUrl;
 
   const fetchPost = firebase.database().ref("Posts");
   let timestamp = moment().format("MMMM Do YYYY, h:mm:ss a");
@@ -113,7 +114,9 @@ export default function WritePost() {
 
     fetchPost.on("value", (snapshot) => {
       if (snapshot.exists()) {
-        uploadImage();
+        if (imagefile) {
+          uploadImage();
+        }
         let postData = {
           uid: currentUser.id,
           author: currentUser.username,
@@ -121,7 +124,9 @@ export default function WritePost() {
           timestamp: timestamp,
           postPic: postImage,
           filetype,
+          userPic,
         };
+
         let postsData = firebase
           .database()
           .ref("posts")
@@ -133,7 +138,9 @@ export default function WritePost() {
           });
         return dispatch(makeNewPost(postsData));
       } else {
-        uploadImage();
+        if (imagefile) {
+          uploadImage();
+        }
         let newPost = firebase.database().ref("posts/").push({
           uid: currentUser.id,
           author: currentUser.username,
@@ -141,17 +148,24 @@ export default function WritePost() {
           timestamp: timestamp,
           postPic: postImage,
           filetype,
+          userPic,
         });
+
         return dispatch(dispatch(makeNewPost(newPost)));
       }
     });
     setPost("");
+    setPostImage("");
+    setImageFile("");
+    setFileType("");
   };
 
   return (
     <div>
       <Dialog
-        onClose={close}
+        onClose={() => {
+          dispatch(closeDailog());
+        }}
         aria-labelledby="customized-dialog-title"
         open={open}
       >
@@ -183,7 +197,7 @@ export default function WritePost() {
         </DialogContent>
         <DialogActions className="dailog-action">
           <input
-            accept="image/*"
+            accept="video/*,image/*"
             className="image-input"
             id="contained-button-file"
             multiple
