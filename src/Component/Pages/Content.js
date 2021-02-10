@@ -77,11 +77,6 @@ export default function Content() {
       dispatch(FailureError(error.message));
     }
   };
-  // const handleClick = (key) => {
-  //   let Remove_Post = firebase.database().ref("posts");
-  //   let Result = Remove_Post.child(key).remove();
-  //   dispatch(RemovePost(Result));
-  // };
 
   useEffect(() => {
     firebase
@@ -112,7 +107,10 @@ export default function Content() {
               />
               {allposts[key].filetype === "" && allposts[key].postPic === "" ? (
                 <>
-                  <CardContent className="card-content">
+                  <CardContent
+                    className="card-content"
+                    style={{ background: allposts[key].colorPicker1 }}
+                  >
                     <Typography variant="h3" component="h3">
                       {allposts[key].post}
                     </Typography>

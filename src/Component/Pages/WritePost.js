@@ -11,6 +11,7 @@ import ImageIcon from "@material-ui/icons/Image";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import moment from "moment";
+import { SketchPicker } from "react-color";
 import firebase from "../Services/firebase";
 import { Fab } from "@material-ui/core";
 import { storage } from "../Services/firebase";
@@ -65,6 +66,9 @@ export default function WritePost() {
   const [postImage, setPostImage] = useState();
   const [imagefile, setImageFile] = useState();
   const [filetype, setFileType] = useState();
+  const [colorPicker1, setcolorPicker1] = useState("fff");
+  const [chooseColor, setChooseColor] = useState(false);
+
   const dispatch = useDispatch();
   const open = useSelector((state) => state.UserReducer.openDailogData);
   const close = useSelector((state) => state.UserReducer.openDailogData);
@@ -72,7 +76,6 @@ export default function WritePost() {
     (state) => state.UserReducer.currentfetchedUser
   );
   let userPic = currentUser.photoUrl;
-
   const fetchPost = firebase.database().ref("Posts");
   let timestamp = moment().format("MMMM Do YYYY, h:mm:ss a");
 
@@ -109,6 +112,23 @@ export default function WritePost() {
     );
   };
 
+  const clearFields = () => {
+    setPost("");
+    setPostImage("");
+    setImageFile("");
+    setFileType("");
+    setcolorPicker1("");
+    setChooseColor(false);
+  };
+
+  const handleOpenColor = () => {
+    setChooseColor(!chooseColor);
+  };
+
+  const handleChangeComplete = (color) => {
+    setcolorPicker1(color.hex);
+  };
+
   const handlePost = (e) => {
     e.preventDefault();
 
@@ -125,6 +145,7 @@ export default function WritePost() {
           postPic: postImage,
           filetype,
           userPic,
+          colorPicker1,
         };
 
         let postsData = firebase
@@ -136,7 +157,8 @@ export default function WritePost() {
               postSnapshot.child("newPosts").ref.push(postData);
             });
           });
-        return dispatch(makeNewPost(postsData));
+        dispatch(makeNewPost(postsData));
+        clearFields();
       } else {
         if (imagefile) {
           uploadImage();
@@ -149,20 +171,18 @@ export default function WritePost() {
           postPic: postImage,
           filetype,
           userPic,
+          colorPicker1,
         });
-
-        return dispatch(dispatch(makeNewPost(newPost)));
+        dispatch(makeNewPost(newPost));
       }
+      clearFields();
     });
-    setPost("");
-    setPostImage("");
-    setImageFile("");
-    setFileType("");
   };
 
   return (
     <div>
       <Dialog
+        fullWidth={true}
         onClose={() => {
           dispatch(closeDailog());
         }}
@@ -190,12 +210,20 @@ export default function WritePost() {
                 setPost(e.target.value);
               }}
               rows={4}
-              // defaultValue="Create Post........"
               variant="outlined"
             />
           </form>
         </DialogContent>
         <DialogActions className="dailog-action">
+          <button onClick={handleOpenColor}>Pick Color</button>
+          {chooseColor === true ? (
+            <SketchPicker
+              color={colorPicker1}
+              onChangeComplete={handleChangeComplete}
+            />
+          ) : (
+            ""
+          )}
           <input
             accept="video/*,image/*"
             className="image-input"
@@ -209,6 +237,7 @@ export default function WritePost() {
               <ImageIcon />
             </Fab>
           </label>
+
           <Button autoFocus onClick={handlePost} color="primary">
             Post
           </Button>
