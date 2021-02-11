@@ -68,7 +68,7 @@ export function UserReducer(state = initialState, action) {
       return { ...state, fetchPosts: action.payload };
 
     case REMOVE_POST:
-      return { ...state, fetchPosts: action.payload };
+      return { ...state };
     default:
       return state;
   }

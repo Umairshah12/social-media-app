@@ -199,19 +199,7 @@ function Main() {
                 </Button>
               </>
             ) : (
-              <>
-                {/* <Link to="/">
-                  <Button color="primary" className="btn-position">
-                    SignIn
-                  </Button>
-                </Link>
-                <Link to="/signUp">
-                  <Button color="secondary" className="btn-position">
-                    SignUp
-                  </Button>
-                </Link> */}
-                ""
-              </>
+              <>""</>
             )}
           </div>
         </Toolbar>
