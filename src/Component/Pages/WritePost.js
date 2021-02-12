@@ -11,7 +11,6 @@ import ImageIcon from "@material-ui/icons/Image";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import moment from "moment";
-import { SketchPicker } from "react-color";
 import firebase from "../Services/firebase";
 import { Fab } from "@material-ui/core";
 import { storage } from "../Services/firebase";
@@ -62,11 +61,14 @@ const DialogActions = withStyles((theme) => ({
   },
 }))(MuiDialogActions);
 export default function WritePost() {
-  const [post, setPost] = useState();
-  const [postImage, setPostImage] = useState();
-  const [imagefile, setImageFile] = useState();
-  const [filetype, setFileType] = useState();
-  const [colorPicker1, setcolorPicker1] = useState("fff");
+  let _menuButtonElement = React.createRef();
+
+  const [post, setPost] = useState("");
+  const [postImage, setPostImage] = useState("");
+  const [imagefile, setImageFile] = useState("");
+  const [filetype, setFileType] = useState("");
+  const [imageName, setImageName] = useState("");
+  const [colorPicker1, setcolorPicker1] = useState("");
   const [chooseColor, setChooseColor] = useState(false);
 
   const dispatch = useDispatch();
@@ -82,6 +84,7 @@ export default function WritePost() {
   const handleUpload = (event) => {
     let file = event.target.files[0];
     setImageFile(file);
+    setImageName(file.name);
     setFileType(file.type);
     let reader = new FileReader();
     reader.readAsDataURL(file);
@@ -121,62 +124,26 @@ export default function WritePost() {
     setChooseColor(false);
   };
 
-  const handleOpenColor = () => {
-    setChooseColor(!chooseColor);
-  };
-
-  const handleChangeComplete = (color) => {
-    setcolorPicker1(color.hex);
-  };
-
   const handlePost = (e) => {
     e.preventDefault();
+    if (imagefile) {
+      uploadImage();
+    }
+    let postData = {
+      uid: currentUser.id,
+      author: currentUser.username,
+      post: post,
+      timestamp: timestamp,
+      postPic: postImage,
+      filetype,
+      userPic,
+      colorPicker1,
+      imageName,
+    };
 
-    fetchPost.on("value", (snapshot) => {
-      if (snapshot.exists()) {
-        if (imagefile) {
-          uploadImage();
-        }
-        let postData = {
-          uid: currentUser.id,
-          author: currentUser.username,
-          post: post,
-          timestamp: timestamp,
-          postPic: postImage,
-          filetype,
-          userPic,
-          colorPicker1,
-        };
-
-        let postsData = firebase
-          .database()
-          .ref("posts")
-          .once("value")
-          .then(function (snapshot) {
-            snapshot.forEach(function (postSnapshot) {
-              postSnapshot.child("newPosts").ref.push(postData);
-            });
-          });
-        dispatch(makeNewPost(postsData));
-        clearFields();
-      } else {
-        if (imagefile) {
-          uploadImage();
-        }
-        let newPost = firebase.database().ref("posts/").push({
-          uid: currentUser.id,
-          author: currentUser.username,
-          post: post,
-          timestamp: timestamp,
-          postPic: postImage,
-          filetype,
-          userPic,
-          colorPicker1,
-        });
-        dispatch(makeNewPost(newPost));
-      }
-      clearFields();
-    });
+    let postsData = firebase.database().ref("posts").push(postData);
+    dispatch(makeNewPost(postsData));
+    clearFields();
   };
 
   return (
@@ -190,7 +157,7 @@ export default function WritePost() {
         open={open}
       >
         <DialogTitle
-          className="dialog-w"
+          // classes={{ root: "title" }}
           id="customized-dialog-title"
           onClose={() => {
             dispatch(closeDailog());
@@ -215,29 +182,30 @@ export default function WritePost() {
           </form>
         </DialogContent>
         <DialogActions className="dailog-action">
-          <button onClick={handleOpenColor}>Pick Color</button>
-          {chooseColor === true ? (
-            <SketchPicker
-              color={colorPicker1}
-              onChangeComplete={handleChangeComplete}
+          <div className="gallery-color-input">
+            <input
+              type="color"
+              value={colorPicker1}
+              class="bar"
+              id="colour"
+              onChange={(e) => {
+                setcolorPicker1(e.target.value);
+              }}
+            ></input>
+            <input
+              accept="video/*,image/*"
+              className="image-input"
+              id="contained-button-file"
+              multiple
+              type="file"
+              onChange={handleUpload}
             />
-          ) : (
-            ""
-          )}
-          <input
-            accept="video/*,image/*"
-            className="image-input"
-            id="contained-button-file"
-            multiple
-            type="file"
-            onChange={handleUpload}
-          />
-          <label htmlFor="contained-button-file">
-            <Fab component="span" className="image-icon">
-              <ImageIcon />
-            </Fab>
-          </label>
-
+            <label className="label-size" htmlFor="contained-button-file">
+              <Fab component="span">
+                <ImageIcon />
+              </Fab>
+            </label>
+          </div>
           <Button autoFocus onClick={handlePost} color="primary">
             Post
           </Button>

@@ -83,7 +83,6 @@
 
 .dialog-w {
   width: 100% !important;
-  /* margin: 0 auto; */
 }
 
 .text-field-w {
@@ -94,7 +93,12 @@
   display: none;
 }
 
+.gallery-color-input {
+  display: flex;
+}
+
 .dailog-action {
+  display: flex !important;
   justify-content: space-between !important;
 }
 
@@ -119,14 +123,12 @@
 }
 
 .card-content {
-  background: darkgray;
   align-items: center;
   text-align: center;
   color: white;
   min-height: 400px !important;
   display: flex;
   justify-content: center;
-  /* margin: 0 auto; */
 }
 
 .no-post-msg {
@@ -139,4 +141,28 @@
 .add-post-btn {
   float: right;
   margin-right: 20px !important;
+}
+
+input[type="color"] {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  border: none;
+  border-radius: 50%;
+  padding: 0;
+}
+
+.bar {
+  margin-right: 20px;
+  margin-top: 1px;
 }

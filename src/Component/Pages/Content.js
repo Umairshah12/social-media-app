@@ -10,8 +10,8 @@ import Collapse from "@material-ui/core/Collapse";
 import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
+import Box from "@material-ui/core/Box";
 import { red } from "@material-ui/core/colors";
-import FavoriteIcon from "@material-ui/icons/Favorite";
 import ThumbUpAltIcon from "@material-ui/icons/ThumbUpAlt";
 import MessageIcon from "@material-ui/icons/Message";
 import ShareIcon from "@material-ui/icons/Share";
@@ -62,16 +62,15 @@ export default function Content() {
   const allposts = useSelector((state) => state.UserReducer.fetchPosts);
   const error = useSelector((state) => state.UserReducer.error);
 
-  console.log("all posts", allposts);
-
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
-  const handleClick = async (key) => {
+  const handleClick = async (key, data) => {
     try {
       let Remove_Post = await firebase.database().ref();
       let Result = await Remove_Post.child(`posts/${key}`).remove();
+      Result = await firebase.storage().ref(`postImages/${data}`).delete();
       dispatch(RemovePost(Result));
     } catch (error) {
       dispatch(FailureError(error.message));
@@ -90,7 +89,7 @@ export default function Content() {
 
   return (
     <div className="card-container">
-      <p>{error}</p>
+      {error ? <p className="text-danger">{error}</p> : null}
       {allposts != null && Object.keys(allposts).length > 0 ? (
         Object.keys(allposts).map((key) => {
           return (
@@ -109,7 +108,11 @@ export default function Content() {
                 <>
                   <CardContent
                     className="card-content"
-                    style={{ background: allposts[key].colorPicker1 }}
+                    style={{
+                      background: allposts[key].colorPicker1
+                        ? allposts[key].colorPicker1
+                        : "#bbbb",
+                    }}
                   >
                     <Typography variant="h3" component="h3">
                       {allposts[key].post}
@@ -137,9 +140,16 @@ export default function Content() {
               )}
 
               <CardContent>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  {allposts[key].post}
-                </Typography>
+                {allposts[key].filetype !== "" &&
+                allposts[key].postPic !== "" ? (
+                  <Typography component="div">
+                    <Box fontWeight="fontWeightBold" m={1}>
+                      {allposts[key].post}
+                    </Box>
+                  </Typography>
+                ) : (
+                  ""
+                )}
               </CardContent>
               <CardActions disableSpacing>
                 <IconButton aria-label="add to favorites">
@@ -156,7 +166,7 @@ export default function Content() {
                 <IconButton
                   aria-label="share"
                   onClick={(e) => {
-                    handleClick(key);
+                    handleClick(key, allposts[key].imageName);
                   }}
                 >
                   <DeleteOutlineIcon />

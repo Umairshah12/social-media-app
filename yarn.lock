@@ -9665,6 +9665,11 @@ react-bootstrap@^1.4.3:
     uncontrollable "^7.0.0"
     warning "^4.0.3"
 
+react-callout-component@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.npmjs.org/react-callout-component/-/react-callout-component-2.1.0.tgz#42201d605f3421c0488cbb62a86b324de91fb357"
+  integrity sha512-INQoE9hP+HB6iUPHaw6HSTGzWEqE9bEFO011NVVRTrdUfhtXO5JOkb4z//CbQ0GFVFiQ3gLMowMFZTl8aFd8gA==
+
 react-color@^2.19.3:
   version "2.19.3"
   resolved "https://registry.npmjs.org/react-color/-/react-color-2.19.3.tgz#ec6c6b4568312a3c6a18420ab0472e146aa5683d"
