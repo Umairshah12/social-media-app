@@ -166,3 +166,21 @@ input[type="color"]::-webkit-color-swatch-wrapper {
   margin-right: 20px;
   margin-top: 1px;
 }
+
+.total-likes {
+  background: #0a0dc8;
+  border-radius: 50%;
+  color: white;
+  width: 20px !important;
+  height: 20px !important;
+  margin-right: 5px !important;
+}
+
+.countNumber {
+  font-size: 20px !important;
+  color: #343a40 !important;
+}
+
+.like-comment-section {
+  justify-content: space-between;
+}
