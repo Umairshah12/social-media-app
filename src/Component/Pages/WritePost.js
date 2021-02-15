@@ -186,7 +186,7 @@ export default function WritePost() {
             <input
               type="color"
               value={colorPicker1}
-              class="bar"
+              className="bar"
               id="colour"
               onChange={(e) => {
                 setcolorPicker1(e.target.value);
