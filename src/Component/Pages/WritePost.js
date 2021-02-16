@@ -61,8 +61,6 @@ const DialogActions = withStyles((theme) => ({
   },
 }))(MuiDialogActions);
 export default function WritePost() {
-  let _menuButtonElement = React.createRef();
-
   const [post, setPost] = useState("");
   const [postImage, setPostImage] = useState("");
   const [imagefile, setImageFile] = useState("");
@@ -79,7 +77,7 @@ export default function WritePost() {
   );
   let userPic = currentUser.photoUrl;
   const fetchPost = firebase.database().ref("Posts");
-  let timestamp = moment().format("MMMM Do YYYY, h:mm:ss a");
+  let timestamp = moment().format("MMMM Do YYYY, h:mm a");
 
   const handleUpload = (event) => {
     let file = event.target.files[0];
@@ -130,7 +128,7 @@ export default function WritePost() {
       uploadImage();
     }
     let postData = {
-      uid: currentUser.id,
+      // uid: currentUser.id,
       author: currentUser.username,
       post: post,
       timestamp: timestamp,
@@ -206,9 +204,27 @@ export default function WritePost() {
               </Fab>
             </label>
           </div>
-          <Button autoFocus onClick={handlePost} color="primary">
-            Post
-          </Button>
+          <div>
+            <Button
+              className="action-cancel"
+              variant="contained"
+              autoFocus
+              onClick={() => {
+                dispatch(closeDailog());
+              }}
+              color="secondary"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              autoFocus
+              onClick={handlePost}
+              color="primary"
+            >
+              Post
+            </Button>
+          </div>
         </DialogActions>
       </Dialog>
     </div>

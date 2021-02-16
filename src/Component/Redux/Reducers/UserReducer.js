@@ -10,6 +10,9 @@ import {
   NEW_POST,
   FETCH_ALL_POSTS,
   REMOVE_POST,
+  OPEN_COMMENT_DAILOG,
+  CLOSE_COMMENT_DAILOG,
+  FETCH_ALL_POST_COMMENTS,
 } from "../Actions/UserAction";
 
 const initialState = {
@@ -19,7 +22,10 @@ const initialState = {
   currentfetchedUser: {},
   openDailogData: false,
   newPosts: [],
+  postSpecificComments: [],
   fetchPosts: [],
+  commentDailog: false,
+  commentId: "",
 };
 
 export function UserReducer(state = initialState, action) {
@@ -27,7 +33,6 @@ export function UserReducer(state = initialState, action) {
     case REGISTER_USER:
       return {
         ...state,
-        // users: action.payload,
         error: "",
       };
 
@@ -62,13 +67,31 @@ export function UserReducer(state = initialState, action) {
       return { ...state, openDailogData: false };
 
     case NEW_POST:
-      return { ...state, newPosts: action.payload, openDailogData: false };
+      return {
+        ...state,
+        newPosts: action.payload,
+        openDailogData: false,
+        commentDailog: false,
+      };
 
     case FETCH_ALL_POSTS:
       return { ...state, fetchPosts: action.payload };
 
     case REMOVE_POST:
       return { ...state };
+
+    case OPEN_COMMENT_DAILOG:
+      return {
+        ...state,
+        commentDailog: true,
+        commentId: action.payload,
+      };
+    case CLOSE_COMMENT_DAILOG:
+      return { ...state, commentDailog: false };
+
+    case FETCH_ALL_POST_COMMENTS:
+      return { ...state, postSpecificComments: action.payload };
+
     default:
       return state;
   }
