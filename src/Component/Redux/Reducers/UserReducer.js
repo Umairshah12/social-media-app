@@ -91,7 +91,6 @@ export function UserReducer(state = initialState, action) {
 
     case FETCH_ALL_POST_COMMENTS:
       return { ...state, postSpecificComments: action.payload };
-
     default:
       return state;
   }

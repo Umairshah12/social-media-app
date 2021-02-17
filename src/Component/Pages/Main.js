@@ -30,9 +30,11 @@ import {
   fetchUser,
   fetchAllUsers,
   openDailog,
+  // getStatus,
 } from "../Redux/Actions/UserAction";
 // import mediaImg from "../assets/images/social-media-app2.jpg";
 import firebase from "../Services/firebase";
+import { AssignmentReturnedSharp } from "@material-ui/icons";
 
 const drawerWidth = 240;
 
@@ -98,7 +100,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Main() {
+function Main(props) {
+  console.log("props", props.authenticated);
   let UID = firebase.auth().currentUser.uid;
   const classes = useStyles();
   const theme = useTheme();
@@ -108,6 +111,11 @@ function Main() {
     (state) => state.UserReducer.currentfetchedUser
   );
   const users = useSelector((state) => state.UserReducer.users);
+  const currentUser = useSelector(
+    (state) => state.UserReducer.currentfetchedUser
+  );
+
+  let uid = firebase.auth().currentUser.uid;
 
   // Fetching single user record
   useEffect(() => {
@@ -119,13 +127,22 @@ function Main() {
       });
   }, []);
 
+  const LogOutUser = () => {
+    let res = firebase.database().ref(`users/${uid}`).update({
+      isOnline: false,
+    });
+    return dispatch(logOutUser(res, auth().signOut()));
+  };
+
   // Fetching all user record
   useEffect(() => {
     firebase
       .database()
       .ref(`users/`)
       .on("value", function (snapshot) {
-        dispatch(fetchAllUsers(snapshot.val()));
+        if (snapshot.val().id !== uid) {
+          return dispatch(fetchAllUsers(snapshot.val()));
+        }
       });
   }, []);
 
@@ -160,11 +177,14 @@ function Main() {
           </IconButton>
 
           <div className="nav-left">
-            <img
-              src={fetchedUser.photoUrl}
-              alt="media app"
-              className="logo-img"
-            />
+            <div class="icon-container">
+              <img
+                src={fetchedUser.photoUrl}
+                alt="media app"
+                className="logo-img"
+              />
+              <div class="logged-in"></div>
+            </div>
 
             <Typography variant="h5" component="h5" className="app-title">
               Social Media App
@@ -179,7 +199,7 @@ function Main() {
                     color="default"
                     className="btn-position"
                     onClick={() => {
-                      dispatch(logOutUser(auth().signOut()));
+                      dispatch(logOutUser(LogOutUser()));
                     }}
                   >
                     Logout
@@ -228,26 +248,39 @@ function Main() {
         </div>
         <Divider />
         <List>
-          {Object.keys(users).map((key) => {
-            return (
-              <ListItem button key={key}>
-                {fetchedUser.id === users[key].id ? (
-                  ""
-                ) : (
-                  <>
-                    <ListItemIcon>
-                      <img
-                        src={users[key].photoUrl}
-                        alt="media app"
-                        className="logo-img"
-                      />
-                    </ListItemIcon>
-                    <ListItemText primary={users[key].username} />
-                  </>
-                )}
-              </ListItem>
-            );
-          })}
+          {users != null &&
+            Object.keys(users).map((key) => {
+              return (
+                <ListItem button key={key}>
+                  {fetchedUser.id === users[key].id ? (
+                    ""
+                  ) : (
+                    <>
+                      <ListItemIcon>
+                        <div class="icon-container">
+                          <img
+                            src={users[key].photoUrl}
+                            alt="media app"
+                            className="logo-img"
+                          />
+                          {users[key].isOnline ? (
+                            <div class="logged-in"></div>
+                          ) : (
+                            <div class="logged-out"></div>
+                          )}
+                        </div>
+                      </ListItemIcon>
+                      <ListItemText primary={users[key].username} />
+                      {users[key].isOnline ? (
+                        <div className="online">online</div>
+                      ) : (
+                        <div className="offline">offline</div>
+                      )}
+                    </>
+                  )}
+                </ListItem>
+              );
+            })}
         </List>
         <Divider />
       </Drawer>

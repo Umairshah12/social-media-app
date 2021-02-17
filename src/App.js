@@ -8,7 +8,6 @@ import {
   Redirect,
 } from "react-router-dom";
 import { Button, Spinner } from "react-bootstrap";
-import { useSelector, useDispatch } from "react-redux";
 import SignUp from "./Component/Pages/SignUp";
 import SignIn from "./Component/Pages/SignIn";
 import Content from "./Component/Pages/Content";
