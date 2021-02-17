@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import clsx from "clsx";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
 import CardMedia from "@material-ui/core/CardMedia";
@@ -9,6 +8,7 @@ import CardActions from "@material-ui/core/CardActions";
 import Collapse from "@material-ui/core/Collapse";
 import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
+import { Button } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 import { red } from "@material-ui/core/colors";
@@ -20,12 +20,15 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import facebook from "../assets/audio/facebook_messenger.mp3";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import { useDispatch, useSelector } from "react-redux";
+import Comment from "../Pages/Comment";
 import firebase from "../Services/firebase";
 import {
   fetchAllPosts,
   RemovePost,
   FailureError,
   makeNewPost,
+  openCommentDailog,
+  fetchAllPostComments,
 } from "../Redux/Actions/UserAction";
 
 const useStyles = makeStyles((theme) => ({
@@ -56,9 +59,8 @@ export default function Content() {
   const [likes, setLikes] = useState(0);
   const [makeLike, setMakeLike] = useState(false);
   const [fbsound, setFbSound] = useState(false);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+
   const classes = useStyles();
-  const [expanded, setExpanded] = React.useState(false);
   const dispatch = useDispatch();
   const allposts = useSelector((state) => state.UserReducer.fetchPosts);
   const error = useSelector((state) => state.UserReducer.error);
@@ -67,8 +69,18 @@ export default function Content() {
   );
 
   let audio = new Audio(facebook);
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
+  const specificComments = (id) => {
+    firebase
+      .database()
+      .ref(`posts/${id}/comments`)
+      .on("value", function (snapshot) {
+        return dispatch(fetchAllPostComments(snapshot.val()));
+      });
+  };
+
+  const handleComment = (id) => {
+    specificComments(id);
+    dispatch(openCommentDailog(id));
   };
 
   const handleClick = async (key, data) => {
@@ -107,13 +119,11 @@ export default function Content() {
 
   const handleClickLikes = (key) => {
     setFbSound(!fbsound);
-
     if (fbsound === false) {
       audio.play();
     } else {
       console.log("sound effect closed");
     }
-
     setMakeLike(!makeLike);
     if (makeLike === false) {
       LikePost(key);
@@ -138,16 +148,19 @@ export default function Content() {
       {allposts != null && Object.keys(allposts).length > 0 ? (
         Object.keys(allposts).map((key) => {
           let allLikes = allposts[key].likePost;
+          let comments = allposts[key].comments;
+          let id = key;
 
           return (
             <Card className="card-width" key={key}>
               <CardHeader
+                className="card-header"
                 avatar={<Avatar alt="User Icon" src={allposts[key].userPic} />}
-                action={
-                  <IconButton aria-label="settings">
-                    <MoreVertIcon />
-                  </IconButton>
-                }
+                // action={
+                //   <IconButton aria-label="settings">
+                //     <MoreVertIcon />
+                //   </IconButton>
+                // }
                 title={allposts[key].author}
                 subheader={allposts[key].timestamp}
               />
@@ -174,7 +187,7 @@ export default function Content() {
                       image={allposts[key].postPic}
                       title="title"
                       controls
-                      // autoPlay
+                      autoPlay
                     />
                   ) : (
                     <CardMedia
@@ -215,8 +228,13 @@ export default function Content() {
                 ) : (
                   ""
                 )}
+
                 <IconButton aria-label="message">
-                  <div className="countNumber">2</div>
+                  <div className="countNumber">
+                    {comments != null && Object.keys(comments).length
+                      ? Object.keys(comments).length
+                      : 0}
+                  </div>
                   <span className="comment">Comments</span>
                 </IconButton>
               </CardActions>
@@ -230,11 +248,14 @@ export default function Content() {
                 </IconButton>
                 <IconButton aria-label="message">
                   <MessageIcon />
-                  <span className="comment">Comment</span>
-                </IconButton>
-
-                <IconButton aria-label="share">
-                  <ShareIcon />
+                  <Button
+                    className="comment-btn "
+                    onClick={() => {
+                      handleComment(id);
+                    }}
+                  >
+                    Comment
+                  </Button>
                 </IconButton>
                 <IconButton
                   aria-label="share"
@@ -256,6 +277,7 @@ export default function Content() {
           </Typography>
         </div>
       )}
+      <Comment />
     </div>
   );
 }

@@ -11,6 +11,9 @@ export const CLOSE_DAILOG = "CLOSE_DAILOG";
 export const NEW_POST = "NEW_POST";
 export const FETCH_ALL_POSTS = "FETCH_ALL_POSTS";
 export const REMOVE_POST = "REMOVE_POST";
+export const OPEN_COMMENT_DAILOG = "OPEN_COMMENT_DAILOG";
+export const CLOSE_COMMENT_DAILOG = "CLOSE_COMMENT_DAILOG";
+export const FETCH_ALL_POST_COMMENTS = "FETCH_ALL_POST_COMMENTS";
 
 export const fetchUser = (snapValue) => {
   return {
@@ -83,5 +86,25 @@ export const RemovePost = (KEY) => {
   return {
     type: REMOVE_POST,
     payload: KEY,
+  };
+};
+
+export const openCommentDailog = (id) => {
+  return {
+    type: OPEN_COMMENT_DAILOG,
+    payload: id,
+  };
+};
+
+export const closeCommentDailog = () => {
+  return {
+    type: CLOSE_COMMENT_DAILOG,
+  };
+};
+
+export const fetchAllPostComments = (comments) => {
+  return {
+    type: FETCH_ALL_POST_COMMENTS,
+    payload: comments,
   };
 };
