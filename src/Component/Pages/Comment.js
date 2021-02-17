@@ -8,6 +8,8 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import List from "@material-ui/core/List";
+import Avatar from "@material-ui/core/Avatar";
+import CardHeader from "@material-ui/core/CardHeader";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
@@ -29,7 +31,7 @@ function Comment(props) {
     (state) => state.UserReducer.currentfetchedUser
   );
 
-  let timestamp = moment().format("MMMM Do YYYY, h:mm a");
+  let timestamp = moment().format("h:mm a");
   const makeComment = (e, postCommentId) => {
     e.preventDefault();
     let makePost = firebase.database().ref(`posts/${postCommentId}/comments`);
@@ -38,6 +40,7 @@ function Comment(props) {
       postComment: postComment,
       pic: currentUser.photoUrl,
       timestamp: timestamp,
+      userName: currentUser.username,
     });
     dispatch(makeNewPost(makePost));
     setPostComment("");
@@ -53,7 +56,7 @@ function Comment(props) {
         aria-labelledby="form-dialog-title"
         open={open}
       >
-        <DialogTitle className="comment" id="form-dialog-title">
+        <DialogTitle className="comment-header" id="form-dialog-title">
           Comments
         </DialogTitle>
         <DialogContent>
@@ -62,24 +65,29 @@ function Comment(props) {
               {comments != null && Object.keys(comments).length > 0
                 ? Object.keys(comments).map((key) => {
                     return (
-                      <>
-                        <ListItem button key={key}>
-                          <ListItemIcon>
-                            <img
+                      <div key={key}>
+                        <CardHeader
+                          avatar={
+                            <Avatar
+                              classes={{
+                                circle: "comment-circle",
+                              }}
+                              alt="User Icon"
                               src={comments[key].pic}
-                              alt="media app"
-                              className="logo-img"
                             />
-                          </ListItemIcon>
-                          <ListItemText
-                            className="comment-section"
-                            primary={comments[key].postComment}
-                          />
-                        </ListItem>
+                          }
+                          classes={{
+                            content: "comment-section",
+                            title: "comment-title",
+                            subheader: "comment-subheader",
+                          }}
+                          title={comments[key].userName}
+                          subheader={comments[key].postComment}
+                        />
                         <div className="commment-post-time">
                           {comments[key].timestamp}
                         </div>
-                      </>
+                      </div>
                     );
                   })
                 : ""}

@@ -156,11 +156,6 @@ export default function Content() {
               <CardHeader
                 className="card-header"
                 avatar={<Avatar alt="User Icon" src={allposts[key].userPic} />}
-                // action={
-                //   <IconButton aria-label="settings">
-                //     <MoreVertIcon />
-                //   </IconButton>
-                // }
                 title={allposts[key].author}
                 subheader={allposts[key].timestamp}
               />
@@ -199,7 +194,7 @@ export default function Content() {
                 </>
               )}
 
-              <CardContent>
+              <CardContent classes={{ root: "content-root" }}>
                 {allposts[key].filetype !== "" &&
                 allposts[key].postPic !== "" ? (
                   <Typography component="div">
@@ -238,33 +233,39 @@ export default function Content() {
                   <span className="comment">Comments</span>
                 </IconButton>
               </CardActions>
-              <CardActions disableSpacing>
-                <IconButton aria-label="add to favorites">
-                  <ThumbUpAltIcon
-                    onClick={() => {
-                      handleClickLikes(key);
-                    }}
-                  />
+              <CardActions classes={{ root: "card-action-border" }}>
+                <div className=""></div>
+                <IconButton aria-label="add to like">
+                  <Button className="comment-btn">
+                    <ThumbUpAltIcon
+                      classes={{ root: "svg-icon" }}
+                      onClick={() => {
+                        handleClickLikes(key);
+                      }}
+                    />
+                    Like
+                  </Button>
                 </IconButton>
                 <IconButton aria-label="message">
-                  <MessageIcon />
                   <Button
-                    className="comment-btn "
+                    className="comment-btn"
                     onClick={() => {
                       handleComment(id);
                     }}
                   >
-                    Comment
+                    <MessageIcon classes={{ root: "svg-icon" }} /> Comments
                   </Button>
                 </IconButton>
-                <IconButton
-                  aria-label="share"
-                  onClick={(e) => {
-                    handleClick(key, allposts[key].imageName);
-                  }}
-                >
-                  <DeleteOutlineIcon />
-                  <span className="comment">Delete Post</span>
+                <IconButton aria-label="message">
+                  <Button className="comment-btn">
+                    <DeleteOutlineIcon
+                      onClick={(e) => {
+                        handleClick(key, allposts[key].imageName);
+                      }}
+                      classes={{ root: "svg-icon" }}
+                    />
+                    Delete Post
+                  </Button>
                 </IconButton>
               </CardActions>
             </Card>
