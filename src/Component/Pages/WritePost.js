@@ -155,7 +155,8 @@ export default function WritePost() {
         open={open}
       >
         <DialogTitle
-          // classes={{ root: "title" }}
+          // className="comment-header"
+          classes={{ root: "post-title" }}
           id="customized-dialog-title"
           onClose={() => {
             dispatch(closeDailog());
