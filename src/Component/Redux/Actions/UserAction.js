@@ -14,6 +14,7 @@ export const REMOVE_POST = "REMOVE_POST";
 export const OPEN_COMMENT_DAILOG = "OPEN_COMMENT_DAILOG";
 export const CLOSE_COMMENT_DAILOG = "CLOSE_COMMENT_DAILOG";
 export const FETCH_ALL_POST_COMMENTS = "FETCH_ALL_POST_COMMENTS";
+export const GET_STATUS = "GET_STATUS";
 
 export const fetchUser = (snapValue) => {
   return {

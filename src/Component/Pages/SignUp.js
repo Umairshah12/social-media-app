@@ -99,6 +99,7 @@ function SignUp() {
           id: user.uid,
           email,
           photoUrl,
+          isOnline: true,
           // imageUrl,
         });
 
