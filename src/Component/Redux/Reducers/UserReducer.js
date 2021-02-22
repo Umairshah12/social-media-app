@@ -13,6 +13,10 @@ import {
   OPEN_COMMENT_DAILOG,
   CLOSE_COMMENT_DAILOG,
   FETCH_ALL_POST_COMMENTS,
+  REMOVE_COMMENT,
+  OPEN_UPDATE_USER_DAILOG,
+  CLOSE_UPDATE_USER_DAILOG,
+  UPDATE_USER,
 } from "../Actions/UserAction";
 
 const initialState = {
@@ -26,6 +30,8 @@ const initialState = {
   fetchPosts: [],
   commentDailog: false,
   commentId: "",
+  userUpdateDailog: false,
+  updateUserId: "",
 };
 
 export function UserReducer(state = initialState, action) {
@@ -49,6 +55,7 @@ export function UserReducer(state = initialState, action) {
         loginUser: {},
         users: [],
         error: "",
+        currentfetchedUser: {},
       };
 
     case FAILIURE_ERRORS:
@@ -86,11 +93,35 @@ export function UserReducer(state = initialState, action) {
         commentDailog: true,
         commentId: action.payload,
       };
+
     case CLOSE_COMMENT_DAILOG:
       return { ...state, commentDailog: false };
 
     case FETCH_ALL_POST_COMMENTS:
       return { ...state, postSpecificComments: action.payload };
+
+    case REMOVE_COMMENT:
+      return { ...state };
+
+    case OPEN_UPDATE_USER_DAILOG:
+      return {
+        ...state,
+        userUpdateDailog: true,
+        updateUserId: action.payload,
+      };
+
+    case CLOSE_UPDATE_USER_DAILOG:
+      return {
+        ...state,
+        userUpdateDailog: false,
+      };
+
+    case UPDATE_USER:
+      return {
+        ...state,
+        userUpdateDailog: false,
+      };
+
     default:
       return state;
   }

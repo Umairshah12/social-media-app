@@ -127,8 +127,9 @@ export default function WritePost() {
     if (imagefile) {
       uploadImage();
     }
+
     let postData = {
-      // uid: currentUser.id,
+      uid: currentUser.id,
       author: currentUser.username,
       post: post,
       timestamp: timestamp,

@@ -107,6 +107,11 @@
   display: flex;
 }
 
+.gallery-input {
+  display: flex;
+  margin-left: 10px !important;
+}
+
 .dailog-action {
   display: flex !important;
   justify-content: space-between !important;
@@ -266,7 +271,7 @@ input[type="color"]::-webkit-color-swatch-wrapper {
 }
 
 .action-cancel {
-  margin-right: 10px !important;
+  margin-right: 5px !important;
 }
 
 .post-title h6 {
@@ -320,6 +325,41 @@ img {
   bottom: 0;
   right: 0;
   position: absolute;
+}
+
+.comment-actions {
+  justify-content: space-between !important;
+}
+
+.comment-image {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 10% !important;
+}
+
+.update-user-input {
+  margin-bottom: 10px !important;
+}
+
+.userpic-container {
+  justify-content: center;
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.user-update-logo {
+  border-radius: 50%;
+  margin-bottom: 20px;
+}
+
+.user-update-pic {
+  border-radius: 50%;
+  width: 30%;
+}
+
+.update-user-title h2 {
+  font-size: 18px !important;
+  font-weight: 700 !important;
 }
 
 @media (max-width: 600px) {

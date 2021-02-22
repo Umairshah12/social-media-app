@@ -55,6 +55,7 @@ function SignUp() {
     setPassword("");
     setEmail("");
     setUsername("");
+    setPhotoUrl("");
   };
 
   const handleUpload = (event) => {
@@ -74,7 +75,9 @@ function SignUp() {
       const user = await firebase
         .auth()
         .createUserWithEmailAndPassword(email, password);
-      const uploadTask = storage.ref(`images/${imageData.name}`).put(imageData);
+      const uploadTask = storage
+        .ref(`userImages/${imageData.name}`)
+        .put(imageData);
       uploadTask.on(
         "state_changed",
         (snapshot) => {},
@@ -83,7 +86,7 @@ function SignUp() {
         },
         () => {
           storage
-            .ref("images")
+            .ref("userImages")
             .child(imageData.name)
             .getDownloadURL()
             .then((url) => {

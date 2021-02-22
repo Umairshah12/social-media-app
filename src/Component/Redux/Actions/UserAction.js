@@ -1,5 +1,3 @@
-import firebase from "../../Services/firebase";
-import axios from "axios";
 export const FETCH_USER = "FETCH_USER";
 export const FETCH_ALL_USERS = "FETCH_ALL_USERS";
 export const REGISTER_USER = "REGISTER_USER";
@@ -13,7 +11,11 @@ export const FETCH_ALL_POSTS = "FETCH_ALL_POSTS";
 export const REMOVE_POST = "REMOVE_POST";
 export const OPEN_COMMENT_DAILOG = "OPEN_COMMENT_DAILOG";
 export const CLOSE_COMMENT_DAILOG = "CLOSE_COMMENT_DAILOG";
+export const REMOVE_COMMENT = "REMOVE_COMMENT";
 export const FETCH_ALL_POST_COMMENTS = "FETCH_ALL_POST_COMMENTS";
+export const OPEN_UPDATE_USER_DAILOG = "OPEN_UPDATE_USER_DAILOG";
+export const CLOSE_UPDATE_USER_DAILOG = "CLOSE_UPDATE_USER_DAILOG";
+export const UPDATE_USER = "UPDATE_USER";
 export const GET_STATUS = "GET_STATUS";
 
 export const fetchUser = (snapValue) => {
@@ -107,5 +109,32 @@ export const fetchAllPostComments = (comments) => {
   return {
     type: FETCH_ALL_POST_COMMENTS,
     payload: comments,
+  };
+};
+
+export const RemoveComment = (KEY) => {
+  return {
+    type: REMOVE_COMMENT,
+    payload: KEY,
+  };
+};
+
+export const openUpdateUserDailog = (id) => {
+  return {
+    type: OPEN_UPDATE_USER_DAILOG,
+    payload: id,
+  };
+};
+
+export const closeUpdateUserDailog = () => {
+  return {
+    type: CLOSE_UPDATE_USER_DAILOG,
+  };
+};
+
+export const UpdateCurrentUser = (userUpdate) => {
+  return {
+    type: UPDATE_USER,
+    payload: userUpdate,
   };
 };

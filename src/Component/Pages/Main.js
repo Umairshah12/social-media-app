@@ -18,8 +18,10 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import InboxIcon from "@material-ui/icons/MoveToInbox";
 import MailIcon from "@material-ui/icons/Mail";
+import userProfile from "../assets/images/userprofile.png";
 import Content from "./Content";
 import WritePost from "./WritePost";
+import UpdateUser from "./UpdateUser";
 // import Navbar from "./Navbar";
 import { Link } from "react-router-dom";
 import { auth } from "../Services/firebase";
@@ -30,11 +32,9 @@ import {
   fetchUser,
   fetchAllUsers,
   openDailog,
-  // getStatus,
+  openUpdateUserDailog,
 } from "../Redux/Actions/UserAction";
-// import mediaImg from "../assets/images/social-media-app2.jpg";
 import firebase from "../Services/firebase";
-import { AssignmentReturnedSharp } from "@material-ui/icons";
 
 const drawerWidth = 240;
 
@@ -101,7 +101,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Main(props) {
-  console.log("props", props.authenticated);
   let UID = firebase.auth().currentUser.uid;
   const classes = useStyles();
   const theme = useTheme();
@@ -121,9 +120,9 @@ function Main(props) {
   useEffect(() => {
     firebase
       .database()
-      .ref(`users/` + UID)
+      .ref(`users/${UID}`)
       .on("value", function (snapshot) {
-        dispatch(fetchUser(snapshot.val()));
+        return dispatch(fetchUser(snapshot.val()));
       });
   }, []);
 
@@ -131,7 +130,7 @@ function Main(props) {
     let res = firebase.database().ref(`users/${uid}`).update({
       isOnline: false,
     });
-    return dispatch(logOutUser(res, auth().signOut()));
+    dispatch(logOutUser(res, auth().signOut()));
   };
 
   // Fetching all user record
@@ -152,6 +151,10 @@ function Main(props) {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const handleUpdateUser = (id) => {
+    dispatch(openUpdateUserDailog(id));
   };
 
   return (
@@ -177,13 +180,28 @@ function Main(props) {
           </IconButton>
 
           <div className="nav-left">
-            <div class="icon-container">
-              <img
-                src={fetchedUser.photoUrl}
-                alt="media app"
-                className="logo-img"
-              />
-              <div class="logged-in"></div>
+            <div className="icon-container">
+              {fetchedUser.photoUrl === "" ? (
+                <img
+                  src={userProfile}
+                  alt="media app"
+                  className="logo-img"
+                  onClick={() => {
+                    handleUpdateUser(fetchedUser.id);
+                  }}
+                />
+              ) : (
+                <img
+                  src={fetchedUser.photoUrl}
+                  alt="media app"
+                  className="logo-img"
+                  onClick={() => {
+                    handleUpdateUser(fetchedUser.id);
+                  }}
+                />
+              )}
+
+              <div className="logged-in"></div>
             </div>
 
             <Typography variant="h5" component="h5" className="app-title">
@@ -199,7 +217,7 @@ function Main(props) {
                     color="default"
                     className="btn-position"
                     onClick={() => {
-                      dispatch(logOutUser(LogOutUser()));
+                      LogOutUser();
                     }}
                   >
                     Logout
@@ -257,16 +275,24 @@ function Main(props) {
                   ) : (
                     <>
                       <ListItemIcon>
-                        <div class="icon-container">
-                          <img
-                            src={users[key].photoUrl}
-                            alt="media app"
-                            className="logo-img"
-                          />
-                          {users[key].isOnline ? (
-                            <div class="logged-in"></div>
+                        <div className="icon-container">
+                          {users[key].photoUrl === "" ? (
+                            <img
+                              src={userProfile}
+                              alt="media app"
+                              className="logo-img"
+                            />
                           ) : (
-                            <div class="logged-out"></div>
+                            <img
+                              src={users[key].photoUrl}
+                              alt="media app"
+                              className="logo-img"
+                            />
+                          )}
+                          {users[key].isOnline ? (
+                            <div className="logged-in"></div>
+                          ) : (
+                            <div className="logged-out"></div>
                           )}
                         </div>
                       </ListItemIcon>
@@ -288,6 +314,7 @@ function Main(props) {
       <main className={classes.content}>
         <div className={classes.toolbar} />
         <Content />
+        <UpdateUser />
       </main>
     </div>
   );
