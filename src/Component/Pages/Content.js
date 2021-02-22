@@ -88,6 +88,7 @@ export default function Content() {
       let Remove_Post = await firebase.database().ref();
       let Result = await Remove_Post.child(`posts/${key}`).remove();
       Result = await firebase.storage().ref(`postImages/${data}`).delete();
+      setPostImage("");
       dispatch(RemovePost(Result));
     } catch (error) {
       dispatch(FailureError(error.message));
@@ -235,37 +236,34 @@ export default function Content() {
               </CardActions>
               <CardActions classes={{ root: "card-action-border" }}>
                 <div className=""></div>
-                <IconButton aria-label="add to like">
-                  <Button className="comment-btn">
-                    <ThumbUpAltIcon
-                      classes={{ root: "svg-icon" }}
-                      onClick={() => {
-                        handleClickLikes(key);
-                      }}
-                    />
-                    Like
-                  </Button>
+                <IconButton
+                  className="comment-btn"
+                  aria-label="add to like"
+                  onClick={() => {
+                    handleClickLikes(key);
+                  }}
+                >
+                  <ThumbUpAltIcon classes={{ root: "svg-icon" }} />
+                  Like
                 </IconButton>
-                <IconButton aria-label="message">
-                  <Button
-                    className="comment-btn"
-                    onClick={() => {
-                      handleComment(id);
-                    }}
-                  >
-                    <MessageIcon classes={{ root: "svg-icon" }} /> Comments
-                  </Button>
+                <IconButton
+                  className="comment-btn"
+                  aria-label="message"
+                  onClick={() => {
+                    handleComment(id);
+                  }}
+                >
+                  <MessageIcon classes={{ root: "svg-icon" }} /> Comments
                 </IconButton>
-                <IconButton aria-label="message">
-                  <Button className="comment-btn">
-                    <DeleteOutlineIcon
-                      onClick={(e) => {
-                        handleClick(key, allposts[key].imageName);
-                      }}
-                      classes={{ root: "svg-icon" }}
-                    />
-                    Delete Post
-                  </Button>
+                <IconButton
+                  className="comment-btn"
+                  aria-label="message"
+                  onClick={(e) => {
+                    handleClick(key, allposts[key].imageName);
+                  }}
+                >
+                  <DeleteOutlineIcon classes={{ root: "svg-icon" }} />
+                  Delete Post
                 </IconButton>
               </CardActions>
             </Card>
