@@ -362,6 +362,10 @@ img {
   font-weight: 700 !important;
 }
 
+.listitem-text-root span {
+  font-family: sans-serif !important;
+}
+
 @media (max-width: 600px) {
   .nav-left {
     width: 100%;

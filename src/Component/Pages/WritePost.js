@@ -130,12 +130,10 @@ export default function WritePost() {
 
     let postData = {
       uid: currentUser.id,
-      author: currentUser.username,
       post: post,
       timestamp: timestamp,
       postPic: postImage,
       filetype,
-      userPic,
       colorPicker1,
       imageName,
     };

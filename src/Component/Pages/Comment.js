@@ -9,9 +9,8 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import List from "@material-ui/core/List";
-import Avatar from "@material-ui/core/Avatar";
+import CommentContent from "../Pages/CommentContent";
 import ImageIcon from "@material-ui/icons/Image";
-import CardHeader from "@material-ui/core/CardHeader";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import IconButton from "@material-ui/core/IconButton";
 import { Fab } from "@material-ui/core";
@@ -110,10 +109,8 @@ function Comment(props) {
     makePost.push({
       id: currentUser.id,
       postComment: postComment,
-      pic: currentUser.photoUrl,
       timestamp: timestamp,
       commentImage: commentPostImage,
-      userName: currentUser.username,
       commentImageName,
       commentImageType,
     });
@@ -140,38 +137,15 @@ function Comment(props) {
               {/* {error ? <p className="text-danger">{error}</p> : null} */}
               {comments != null && Object.keys(comments).length > 0
                 ? Object.keys(comments).map((key) => {
+                    let postComment = comments[key].postComment;
+                    let commentImage = comments[key].commentImage;
+                    let id = comments[key].id;
                     return (
                       <div key={key}>
-                        <CardHeader
-                          avatar={
-                            <Avatar
-                              classes={{
-                                circular: "comment-circle",
-                              }}
-                              alt="User Icon"
-                              src={comments[key].pic}
-                            />
-                          }
-                          classes={{
-                            content: "comment-section",
-                            title: "comment-title",
-                            subheader: "comment-subheader",
-                          }}
-                          title={comments[key].userName}
-                          subheader={
-                            comments[key].postComment === "" ? (
-                              <img
-                                src={
-                                  comments[key].commentImage &&
-                                  comments[key].commentImage
-                                }
-                                alt="media app"
-                                className="comment-image"
-                              />
-                            ) : (
-                              comments[key].postComment
-                            )
-                          }
+                        <CommentContent
+                          postComment={postComment}
+                          id={id}
+                          commentImage={commentImage}
                         />
                         <div className="commment-post-time">
                           <IconButton

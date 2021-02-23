@@ -187,7 +187,7 @@ function Main(props) {
                   alt="media app"
                   className="logo-img"
                   onClick={() => {
-                    handleUpdateUser(fetchedUser.id);
+                    handleUpdateUser(UID);
                   }}
                 />
               ) : (
@@ -296,12 +296,15 @@ function Main(props) {
                           )}
                         </div>
                       </ListItemIcon>
-                      <ListItemText primary={users[key].username} />
-                      {users[key].isOnline ? (
+                      <ListItemText
+                        classes={{ root: "listitem-text-root" }}
+                        primary={users[key].username}
+                      />
+                      {/* {users[key].isOnline ? (
                         <div className="online">online</div>
                       ) : (
                         <div className="offline">offline</div>
-                      )}
+                      )} */}
                     </>
                   )}
                 </ListItem>

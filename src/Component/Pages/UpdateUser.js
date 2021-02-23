@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -20,26 +20,29 @@ export default function UpdateUser() {
   const fetchedUser = useSelector(
     (state) => state.UserReducer.currentfetchedUser
   );
-  let username = fetchedUser.username;
-  let updateUserPic = fetchedUser.photoUrl;
 
-  const [userName, setUserName] = useState(username);
+  const [userName, setUserName] = useState("");
   const [updateUserImage, setUpdateUserImage] = useState("");
   const [updateimagefile, setUpdateImageFile] = useState("");
   const [updatefiletype, setUpdateFileType] = useState("");
   const [updateimageName, setUpdateImageName] = useState("");
-  const [userPostImage, setUserPostImage] = useState(updateUserPic);
+  const [userPostImage, setUserPostImage] = useState("");
+  const dispatch = useDispatch();
 
-  const allposts = useSelector((state) => state.UserReducer.fetchPosts);
   let Uid = firebase.auth().currentUser.uid;
-
   const openUserDailog = useSelector(
     (state) => state.UserReducer.userUpdateDailog
   );
 
-  console.log("userimages", fetchedUser.photoUrl);
-
-  const dispatch = useDispatch();
+  useEffect(() => {
+    firebase
+      .database()
+      .ref(`users/${Uid}`)
+      .on("value", function (snapshot) {
+        setUserName(snapshot.val().username);
+        setUserPostImage(snapshot.val().photoUrl);
+      });
+  }, []);
 
   const handleUploadUserImage = (event) => {
     let file = event.target.files[0];
@@ -55,32 +58,17 @@ export default function UpdateUser() {
 
   const handleUpdateUser = () => {
     let userUpdate = "";
-    return Object.keys(allposts).map((key) => {
-      let author = allposts[key].author;
-      let authorId = allposts[key].uid;
-      let userPic = allposts[key].userPic;
-      userUpdate = firebase.database().ref(`users/${Uid}`).update({
-        username: userName,
-      });
-      if (userPostImage) {
-        userUpdate = firebase.database().ref(`users/${Uid}`).update({
-          photoUrl: userPostImage,
-        });
-      }
-      if (authorId === Uid) {
-        userUpdate = firebase.database().ref(`posts/${key}`).update({
-          author: userName,
-        });
-        if (userPostImage) {
-          userUpdate = firebase.database().ref(`posts/${key}`).update({
-            userPic: userPostImage,
-          });
-        }
-      }
-
-      dispatch(UpdateCurrentUser(userUpdate));
+    userUpdate = firebase.database().ref(`users/${Uid}`).update({
+      username: userName,
     });
+    if (userPostImage) {
+      userUpdate = firebase.database().ref(`users/${Uid}`).update({
+        photoUrl: userPostImage,
+      });
+    }
+    dispatch(UpdateCurrentUser(userUpdate));
   };
+
   return (
     <div>
       <Dialog
@@ -109,8 +97,7 @@ export default function UpdateUser() {
                 />
               ) : (
                 <img
-                  src={userPostImage || updateUserPic}
-                  // src={updateUserPic || userPostImage}
+                  src={userPostImage}
                   alt="user Image"
                   className="user-update-logo"
                 />
@@ -125,7 +112,7 @@ export default function UpdateUser() {
             onChange={(e) => {
               setUserName(e.target.value);
             }}
-            value={userName || username}
+            value={userName}
             autoComplete="current-password"
             variant="filled"
             fullWidth

@@ -17,12 +17,14 @@ import {
   OPEN_UPDATE_USER_DAILOG,
   CLOSE_UPDATE_USER_DAILOG,
   UPDATE_USER,
+  POST_USER_DATA,
 } from "../Actions/UserAction";
 
 const initialState = {
   users: {},
   loginUser: {},
   errors: "",
+  // fetchPostSinlgeUserData: {},
   currentfetchedUser: {},
   openDailogData: false,
   newPosts: [],
@@ -115,6 +117,12 @@ export function UserReducer(state = initialState, action) {
         ...state,
         userUpdateDailog: false,
       };
+
+    // case POST_USER_DATA:
+    //   return {
+    //     ...state,
+    //     fetchPostSinlgeUserData: action.payload,
+    //   };
 
     case UPDATE_USER:
       return {
