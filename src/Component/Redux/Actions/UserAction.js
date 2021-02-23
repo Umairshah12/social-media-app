@@ -138,10 +138,3 @@ export const UpdateCurrentUser = (userUpdate) => {
     payload: userUpdate,
   };
 };
-
-// export const fetchPostUserData = (postUserData) => {
-//   return {
-//     type: POST_USER_DATA,
-//     payload: postUserData,
-//   };
-// };
