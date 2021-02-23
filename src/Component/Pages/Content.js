@@ -22,6 +22,7 @@ import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import { useDispatch, useSelector } from "react-redux";
 import Comment from "../Pages/Comment";
 import firebase from "../Services/firebase";
+import PostContent from "../Pages/PostContent";
 import {
   fetchAllPosts,
   RemovePost,
@@ -74,7 +75,7 @@ export default function Content() {
       .database()
       .ref(`posts/${id}/comments`)
       .on("value", function (snapshot) {
-        return dispatch(fetchAllPostComments(snapshot.val()));
+        dispatch(fetchAllPostComments(snapshot.val()));
       });
   };
 
@@ -136,10 +137,10 @@ export default function Content() {
   useEffect(() => {
     firebase
       .database()
-      .ref(`posts/`)
+      .ref(`posts`)
       .on("value", function (snapshot) {
         let snapValue = snapshot.val();
-        return dispatch(fetchAllPosts(snapValue));
+        dispatch(fetchAllPosts(snapValue));
       });
   }, []);
 
@@ -148,18 +149,15 @@ export default function Content() {
       {error ? <p className="text-danger">{error}</p> : null}
       {allposts != null && Object.keys(allposts).length > 0 ? (
         Object.keys(allposts).map((key) => {
+          let postid = allposts[key].uid;
           let allLikes = allposts[key].likePost;
           let comments = allposts[key].comments;
+          let timestamp = allposts[key].timestamp;
           let id = key;
 
           return (
             <Card className="card-width" key={key}>
-              <CardHeader
-                className="card-header"
-                avatar={<Avatar alt="User Icon" src={allposts[key].userPic} />}
-                title={allposts[key].author}
-                subheader={allposts[key].timestamp}
-              />
+              <PostContent postid={postid} timestamp={timestamp} />
               {allposts[key].filetype === "" && allposts[key].postPic === "" ? (
                 <>
                   <CardContent
