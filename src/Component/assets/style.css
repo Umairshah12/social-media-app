@@ -366,6 +366,16 @@ img {
   font-family: sans-serif !important;
 }
 
+.message-image {
+  width: 300px !important;
+  border-radius: 5% !important;
+  margin-top: 5px !important;
+}
+
+.message-header {
+  padding: 2px 5px !important;
+}
+
 @media (max-width: 600px) {
   .nav-left {
     width: 100%;

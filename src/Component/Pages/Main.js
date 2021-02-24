@@ -21,6 +21,7 @@ import MailIcon from "@material-ui/icons/Mail";
 import userProfile from "../assets/images/userprofile.png";
 import Content from "./Content";
 import WritePost from "./WritePost";
+import Messages from "./Messages";
 import UpdateUser from "./UpdateUser";
 // import Navbar from "./Navbar";
 import { Link } from "react-router-dom";
@@ -34,6 +35,12 @@ import {
   openDailog,
   openUpdateUserDailog,
 } from "../Redux/Actions/UserAction";
+import {
+  openMessagesDailog,
+  fetchMessages,
+  fetchSpecificUserMessages,
+  fetchSinlgeUserProfile,
+} from "../Redux/Actions/MessagesAction";
 import firebase from "../Services/firebase";
 
 const drawerWidth = 240;
@@ -105,6 +112,7 @@ function Main(props) {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  const [userMessages, setUserMessages] = React.useState({});
   const dispatch = useDispatch();
   const fetchedUser = useSelector(
     (state) => state.UserReducer.currentfetchedUser
@@ -113,8 +121,28 @@ function Main(props) {
   const currentUser = useSelector(
     (state) => state.UserReducer.currentfetchedUser
   );
+  const allMessages = useSelector(
+    (state) => state.MessagesReducer.fetchUserMessages
+  );
 
   let uid = firebase.auth().currentUser.uid;
+
+  const specificMessages = (id) => {
+    firebase
+      .database()
+      .ref(`messages/${id}`)
+      .on("value", function (snapshot) {
+        dispatch(fetchSpecificUserMessages(snapshot.val()));
+        dispatch(openMessagesDailog(id));
+      });
+
+    firebase
+      .database()
+      .ref(`users/${id}`)
+      .on("value", function (snapshot) {
+        dispatch(fetchSinlgeUserProfile(snapshot.val()));
+      });
+  };
 
   // Fetching single user record
   useEffect(() => {
@@ -270,43 +298,39 @@ function Main(props) {
             Object.keys(users).map((key) => {
               return (
                 <ListItem button key={key}>
-                  {fetchedUser.id === users[key].id ? (
-                    ""
-                  ) : (
-                    <>
-                      <ListItemIcon>
-                        <div className="icon-container">
-                          {users[key].photoUrl === "" ? (
-                            <img
-                              src={userProfile}
-                              alt="media app"
-                              className="logo-img"
-                            />
-                          ) : (
-                            <img
-                              src={users[key].photoUrl}
-                              alt="media app"
-                              className="logo-img"
-                            />
-                          )}
-                          {users[key].isOnline ? (
-                            <div className="logged-in"></div>
-                          ) : (
-                            <div className="logged-out"></div>
-                          )}
-                        </div>
-                      </ListItemIcon>
-                      <ListItemText
-                        classes={{ root: "listitem-text-root" }}
-                        primary={users[key].username}
-                      />
-                      {/* {users[key].isOnline ? (
-                        <div className="online">online</div>
-                      ) : (
-                        <div className="offline">offline</div>
-                      )} */}
-                    </>
-                  )}
+                  <>
+                    <ListItemIcon
+                      onClick={() => {
+                        specificMessages(users[key].id);
+                      }}
+                    >
+                      <div className="icon-container">
+                        {users[key].photoUrl === "" ? (
+                          <img
+                            src={userProfile}
+                            alt="media app"
+                            className="logo-img"
+                          />
+                        ) : (
+                          <img
+                            src={users[key].photoUrl}
+                            alt="media app"
+                            className="logo-img"
+                          />
+                        )}
+                        {users[key].isOnline ? (
+                          <div className="logged-in"></div>
+                        ) : (
+                          <div className="logged-out"></div>
+                        )}
+                      </div>
+                    </ListItemIcon>
+
+                    <ListItemText
+                      classes={{ root: "listitem-text-root" }}
+                      primary={users[key].username}
+                    />
+                  </>
                 </ListItem>
               );
             })}
@@ -318,6 +342,7 @@ function Main(props) {
         <div className={classes.toolbar} />
         <Content />
         <UpdateUser />
+        <Messages />
       </main>
     </div>
   );
