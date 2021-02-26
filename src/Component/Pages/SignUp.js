@@ -103,6 +103,7 @@ function SignUp() {
           email,
           photoUrl,
           isOnline: true,
+          FileImage: imageData.name,
           // imageUrl,
         });
 

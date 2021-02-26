@@ -5,6 +5,7 @@ export const FETCH_MESSAGES = "FETCH_MESSAGES";
 export const FETCH_SPECIFIC_MESSAGES = "FETCH_SPECIFIC_MESSAGES";
 export const REMOVE_MESSAGE = "REMOVE_MESSAGE";
 export const USER_PROFILE_DATA = "USER_PROFILE_DATA";
+export const FETCH_RECIEVER_USER_MESSAGES = "FETCH_RECIEVER_USER_MESSAGES";
 
 export const openMessagesDailog = (id) => {
   return {
@@ -51,5 +52,12 @@ export const fetchSinlgeUserProfile = (profileData) => {
   return {
     type: USER_PROFILE_DATA,
     payload: profileData,
+  };
+};
+
+export const fetchRecieverUserMessages = (recieverMessages) => {
+  return {
+    type: FETCH_RECIEVER_USER_MESSAGES,
+    payload: recieverMessages,
   };
 };

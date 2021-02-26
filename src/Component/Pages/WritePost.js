@@ -146,6 +146,7 @@ export default function WritePost() {
   return (
     <div>
       <Dialog
+        classes={{ paper: "message-dailog" }}
         fullWidth={true}
         onClose={() => {
           dispatch(closeDailog());

@@ -17,11 +17,14 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import MessagesContent from "../Pages/MessagesContent";
+import $ from "jquery";
 import { Fab } from "@material-ui/core";
 import { storage } from "../Services/firebase";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
-import userProfile from "../assets/images/userprofile.png";
+// import { Recorder } from "react-voice-recorder";
+// import "react-voice-recorder/dist/index.css";
+// import userImg from "../assets/images/social-media-bg3.png";
 
 import {
   closeMessagesDailog,
@@ -36,15 +39,29 @@ function Messages(props) {
   const [messageFile, setMessageFile] = useState("");
   const [messageImageName, setMessageImageName] = useState("");
   const [messageImageType, setMessageImageType] = useState("");
+  const [messengerSound, setMessengerSound] = useState(false);
   const [messagePostImage, setMessagePostImage] = useState("");
+  // const [allMessages, setAllMessages] = useState({});
+  const [number, setNumber] = useState({});
   const dispatch = useDispatch();
+  const currentUserImage = useSelector(
+    (state) => state.UserReducer.currentfetchedUser
+  );
+
+  // console.log("current user image", currentUserImage);
   const open = useSelector((state) => state.MessagesReducer.MessagesDailog);
   const UserMessageId = useSelector(
     (state) => state.MessagesReducer.UserMessageId
   );
+
+  let apiKey =
+    "AAAAZPe9IZ0:APA91bE1IJq_ohIsKv0KvhEi5JwVBnx8FjKMKtUeJlKhABx4LTDL0WKxNYcH21kN79j03_obyk7dHLSDTV0TL4OkZCbKKpDPiQj5GVnXPNxopQYHIfvN8Ol1jRTcJNChplCc3SFZPDwl";
   const users = useSelector((state) => state.UserReducer.users);
-  const UsersMessages = useSelector(
+  const allMessages = useSelector(
     (state) => state.MessagesReducer.specificUserMessages
+  );
+  const recieverMessages = useSelector(
+    (state) => state.MessagesReducer.fetchRecieverMessages
   );
   const userProfile = useSelector(
     (state) => state.MessagesReducer.UserProfileData
@@ -86,13 +103,27 @@ function Messages(props) {
     );
   };
 
-  const handleDeleteComment = async (key, data) => {
+  const handleDeleteMessage = async (key, data) => {
     try {
       let Result = await firebase
         .database()
-        .ref(`messages/${UserMessageId}/${key}`)
+        .ref(`messages/${UserMessageId}/${uid}/${key}`)
         .remove();
-      Result = await firebase.storage().ref(`messagesImages/${data}`).delete();
+      // Result = await firebase.storage().ref(`messagesImages/${data}`).delete();
+      setMessageImageName("");
+      return dispatch(RemoveMessage(Result));
+    } catch (error) {
+      dispatch(FailureError(error.message));
+    }
+  };
+
+  const handleDeleteRecieverMessage = async (key, data) => {
+    try {
+      let Result = await firebase
+        .database()
+        .ref(`messages/${uid}/${UserMessageId}/${key}`)
+        .remove();
+      // Result = await firebase.storage().ref(`messagesImages/${data}`).delete();
       setMessageImageName("");
       return dispatch(RemoveMessage(Result));
     } catch (error) {
@@ -110,13 +141,18 @@ function Messages(props) {
 
   let timestamp = moment().format("h:mm a");
 
+  const onKeyDown = (event) => {
+    if (event.code === "Enter" || event.code === "NumpadEnter") {
+      sendMessage();
+    }
+  };
+
   const sendMessage = () => {
-    // e.preventDefault();
     if (messageFile) {
       uploadImage();
     }
-    let newMessage = firebase.database().ref(`messages/${UserMessageId}`);
-    newMessage.push({
+
+    let ChatMessages = {
       MessageFrom: uid,
       MessagetoId: UserMessageId,
       postMessage: postMessage,
@@ -124,14 +160,59 @@ function Messages(props) {
       messageImage: messagePostImage,
       messageImageName,
       messageImageType,
-    });
-    dispatch(sendMessages(newMessage));
+    };
+
+    firebase
+      .database()
+      .ref(`messages/${UserMessageId}/${uid}`)
+      .push(ChatMessages, function (error) {
+        if (error) {
+          alert(error);
+        } else {
+          firebase
+            .database()
+            .ref("fcmToken")
+            .child(UserMessageId)
+            .once("value")
+            .then(function (data) {
+              $.ajax({
+                url: "https://fcm.googleapis.com/fcm/send",
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `key=${apiKey}`,
+                },
+                notification: {
+                  to: data.val().token_id,
+                },
+                data: JSON.stringify({
+                  to: data.val().token_id,
+                  data: {
+                    message: ChatMessages.postMessage.substring(0, 30) + "....",
+                    userName: currentUserImage.username,
+                    // sound: default,
+                    // icon: currentUserImage.photoUrl,
+                  },
+                }),
+                success: function (response) {
+                  console.log("success", response);
+                },
+                error: function (error) {
+                  console.log("error", error.message);
+                },
+              });
+            });
+        }
+      });
+    dispatch(sendMessages(ChatMessages));
     clearFields();
+    document.getElementById("textmessage").focus();
   };
 
   return (
     <div>
       <Dialog
+        classes={{ paper: "message-dailog" }}
         fullWidth={true}
         onClose={() => {
           dispatch(closeMessagesDailog());
@@ -170,60 +251,100 @@ function Messages(props) {
           </ListItem>
         </DialogTitle>
 
-        <DialogContent>
+        <DialogContent classes={{ root: "chat-root" }}>
           <DialogContentText>
             <div>
               {/* {error ? <p className="text-danger">{error}</p> : null}  */}
-              {UsersMessages != null && Object.keys(UsersMessages).length > 0
-                ? Object.keys(UsersMessages).map((key) => {
-                    let postMessage = UsersMessages[key].postMessage;
-                    let messageImage = UsersMessages[key].messageImage;
-                    let UserId = UsersMessages[key].MessageFrom;
-                    let messageImageType = UsersMessages[key].messageImageType;
-
+              {allMessages != null && Object.keys(allMessages).length > 0
+                ? Object.keys(allMessages).map((key) => {
+                    let postMessage = allMessages[key].postMessage;
+                    let messageImage = allMessages[key].messageImage;
+                    let UserId = allMessages[key].MessageFrom;
+                    let messageImageType = allMessages[key].messageImageType;
+                    let messageto = allMessages[key].MessagetoId;
                     return (
                       <div key={key}>
-                        <MessagesContent
-                          key={key}
-                          postMessage={postMessage}
-                          id={UserId}
-                          messageImage={messageImage}
-                          messageImageType={messageImageType}
-                        />
-                        <div className="commment-post-time">
-                          <IconButton
-                            className="comment-btn"
-                            aria-label="message"
-                            onClick={() => {
-                              handleDeleteComment(
-                                key,
-                                UsersMessages[key].messageImageName &&
-                                  UsersMessages[key].messageImageName
-                              );
-                            }}
-                          >
-                            <DeleteOutlineIcon classes={{ root: "svg-icon" }} />
-                            Delete Message
-                          </IconButton>
-                          {UsersMessages[key].timestamp}
-                        </div>
+                        <>
+                          <MessagesContent
+                            key={key}
+                            postMessage={postMessage}
+                            id={UserId}
+                            messageImage={messageImage}
+                            messageImageType={messageImageType}
+                          />
+
+                          <div className="commment-post-time">
+                            <IconButton
+                              className="comment-btn"
+                              aria-label="message"
+                              onClick={() => {
+                                handleDeleteMessage(
+                                  key,
+                                  allMessages[key].messageImageName &&
+                                    allMessages[key].messageImageName
+                                );
+                              }}
+                            >
+                              <DeleteOutlineIcon
+                                classes={{ root: "svg-icon" }}
+                              />
+                              Delete Message
+                            </IconButton>
+                            {allMessages[key].timestamp}
+                          </div>
+                        </>
                       </div>
                     );
                   })
                 : ""}
+              {
+                <>
+                  {recieverMessages !== null &&
+                    Object.keys(recieverMessages).map((key) => {
+                      let postMessage = recieverMessages[key].postMessage;
+                      let messageImage = recieverMessages[key].messageImage;
+                      let UserId = recieverMessages[key].MessageFrom;
+                      let messageImageType =
+                        recieverMessages[key].messageImageType;
+                      let messageto = recieverMessages[key].MessagetoId;
+                      return (
+                        <div key={key}>
+                          <>
+                            <MessagesContent
+                              key={key}
+                              postMessage={postMessage}
+                              id={UserId}
+                              messageImage={messageImage}
+                              messageImageType={messageImageType}
+                            />
+
+                            <div className="commment-post-time">
+                              <IconButton
+                                className="comment-btn"
+                                aria-label="message"
+                                onClick={() => {
+                                  handleDeleteRecieverMessage(
+                                    key,
+                                    recieverMessages[key].messageImageName &&
+                                      recieverMessages[key].messageImageName
+                                  );
+                                }}
+                              >
+                                <DeleteOutlineIcon
+                                  classes={{ root: "svg-icon" }}
+                                />
+                                Delete Message
+                              </IconButton>
+                              {recieverMessages[key].timestamp}
+                            </div>
+                          </>
+                        </div>
+                      );
+                    })}
+                </>
+              }
             </div>
           </DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            onChange={(e) => {
-              setPostMessage(e.target.value);
-            }}
-            label="Send Message"
-            type="text"
-            fullWidth
-          />
         </DialogContent>
         <DialogActions className="comment-actions">
           <div className="gallery-input">
@@ -241,17 +362,19 @@ function Messages(props) {
               </Fab>
             </label>
           </div>
+
+          <input
+            id="textmessage"
+            type="text"
+            placeholder="Type Here..."
+            className="form-control chat-input"
+            onKeyDown={onKeyDown}
+            onChange={(e) => {
+              setPostMessage(e.target.value);
+            }}
+            value={postMessage}
+          ></input>
           <div>
-            <Button
-              variant="contained"
-              onClick={() => {
-                dispatch(closeMessagesDailog());
-              }}
-              color="secondary"
-              className="action-cancel"
-            >
-              Cancel
-            </Button>
             <Button variant="contained" onClick={sendMessage} color="primary">
               Send
             </Button>

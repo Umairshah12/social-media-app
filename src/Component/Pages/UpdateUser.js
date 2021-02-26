@@ -34,6 +34,7 @@ export default function UpdateUser() {
     (state) => state.UserReducer.userUpdateDailog
   );
 
+  console.log("image file", updateimagefile);
   useEffect(() => {
     firebase
       .database()
@@ -64,6 +65,11 @@ export default function UpdateUser() {
     if (userPostImage) {
       userUpdate = firebase.database().ref(`users/${Uid}`).update({
         photoUrl: userPostImage,
+      });
+    }
+    if (updateimagefile) {
+      userUpdate = firebase.database().ref(`users/${Uid}`).update({
+        FileImage: updateimagefile.name,
       });
     }
     dispatch(UpdateCurrentUser(userUpdate));

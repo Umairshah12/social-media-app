@@ -40,6 +40,7 @@ import {
   fetchMessages,
   fetchSpecificUserMessages,
   fetchSinlgeUserProfile,
+  fetchRecieverUserMessages,
 } from "../Redux/Actions/MessagesAction";
 import firebase from "../Services/firebase";
 
@@ -112,7 +113,9 @@ function Main(props) {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const [userMessages, setUserMessages] = React.useState({});
+  const [count, setCount] = React.useState("");
+  const [userNotification, setUserNotifcation] = React.useState("");
+
   const dispatch = useDispatch();
   const fetchedUser = useSelector(
     (state) => state.UserReducer.currentfetchedUser
@@ -121,18 +124,45 @@ function Main(props) {
   const currentUser = useSelector(
     (state) => state.UserReducer.currentfetchedUser
   );
-  const allMessages = useSelector(
-    (state) => state.MessagesReducer.fetchUserMessages
+
+  const specificCountMessage = useSelector(
+    (state) => state.MessagesReducer.specificUserMessages
   );
+
+  const recieverMessages = useSelector(
+    (state) => state.MessagesReducer.fetchRecieverMessages
+  );
+
+  console.log("reciver mESSAGES", recieverMessages);
+  console.log("all mESSAGES", specificCountMessage);
 
   let uid = firebase.auth().currentUser.uid;
 
+  useEffect(() => {
+    firebase
+      .database()
+      .ref(`messages`)
+      .on("value", function (snapshot) {
+        let alldatamessages = snapshot.val();
+        dispatch(fetchMessages(alldatamessages));
+      });
+  }, []);
+
+  console.log("count", count);
   const specificMessages = (id) => {
     firebase
       .database()
-      .ref(`messages/${id}`)
+      .ref(`messages/${id}/${uid}`)
       .on("value", function (snapshot) {
         dispatch(fetchSpecificUserMessages(snapshot.val()));
+        dispatch(openMessagesDailog(id));
+      });
+
+    firebase
+      .database()
+      .ref(`messages/${uid}/${id}`)
+      .on("value", function (snapshot) {
+        dispatch(fetchRecieverUserMessages(snapshot.val()));
         dispatch(openMessagesDailog(id));
       });
 
@@ -143,6 +173,17 @@ function Main(props) {
         dispatch(fetchSinlgeUserProfile(snapshot.val()));
       });
   };
+
+  // useEffect(() => {
+  //   firebase
+  //     .database()
+  //     .ref(`messages/${uid}/count`)
+  //     .on("value", function (snapshot) {
+  //       setCount(snapshot.val());
+  //       // dispatch(fetchRecieverUserMessages(snapshot.val()));
+  //       // dispatch(openMessagesDailog(id));
+  //     });
+  // }, []);
 
   // Fetching single user record
   useEffect(() => {
@@ -209,7 +250,7 @@ function Main(props) {
 
           <div className="nav-left">
             <div className="icon-container">
-              {fetchedUser.photoUrl === "" ? (
+              {currentUser.photoUrl === "" ? (
                 <img
                   src={userProfile}
                   alt="media app"
@@ -220,11 +261,11 @@ function Main(props) {
                 />
               ) : (
                 <img
-                  src={fetchedUser.photoUrl}
+                  src={currentUser.photoUrl}
                   alt="media app"
                   className="logo-img"
                   onClick={() => {
-                    handleUpdateUser(fetchedUser.id);
+                    handleUpdateUser(currentUser.id);
                   }}
                 />
               )}
@@ -298,39 +339,58 @@ function Main(props) {
             Object.keys(users).map((key) => {
               return (
                 <ListItem button key={key}>
-                  <>
-                    <ListItemIcon
-                      onClick={() => {
-                        specificMessages(users[key].id);
-                      }}
-                    >
-                      <div className="icon-container">
-                        {users[key].photoUrl === "" ? (
-                          <img
-                            src={userProfile}
-                            alt="media app"
-                            className="logo-img"
-                          />
-                        ) : (
-                          <img
-                            src={users[key].photoUrl}
-                            alt="media app"
-                            className="logo-img"
-                          />
-                        )}
-                        {users[key].isOnline ? (
-                          <div className="logged-in"></div>
-                        ) : (
-                          <div className="logged-out"></div>
-                        )}
-                      </div>
-                    </ListItemIcon>
+                  {uid === users[key].id ? (
+                    ""
+                  ) : (
+                    <>
+                      <ListItemIcon
+                        onClick={() => {
+                          specificMessages(users[key].id);
+                          setCount("");
+                        }}
+                      >
+                        <div className="icon-container">
+                          {users[key].photoUrl === "" ? (
+                            <img
+                              src={userProfile}
+                              alt="media app"
+                              className="logo-img"
+                            />
+                          ) : (
+                            <img
+                              src={users[key].photoUrl}
+                              alt="media app"
+                              className="logo-img"
+                            />
+                          )}
+                          {users[key].isOnline ? (
+                            <div className="logged-in"></div>
+                          ) : (
+                            <div className="logged-out"></div>
+                          )}
+                        </div>
+                      </ListItemIcon>
 
-                    <ListItemText
-                      classes={{ root: "listitem-text-root" }}
-                      primary={users[key].username}
-                    />
-                  </>
+                      <ListItemText
+                        classes={{ root: "listitem-text-root" }}
+                        primary={users[key].username}
+                      />
+                    </>
+                  )}
+
+                  {recieverMessages !== null &&
+                    Object.keys(recieverMessages).map((item) => {
+                      let countedItem = recieverMessages[item].cpunt;
+                      // console.log("id", countedItem);
+
+                      return (
+                        <>
+                          {recieverMessages[item].MessageFrom === users[key].id
+                            ? count
+                            : ""}
+                        </>
+                      );
+                    })}
                 </ListItem>
               );
             })}

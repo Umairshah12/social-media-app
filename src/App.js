@@ -52,6 +52,23 @@ function App(props) {
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged(function (user) {
       if (user) {
+        const messaging = firebase.messaging();
+        messaging
+          .requestPermission()
+          .then(function () {
+            return messaging.getToken();
+          })
+          .then(function (token) {
+            firebase
+              .database()
+              .ref("fcmToken")
+              .child(user.uid)
+              .set({ token_id: token });
+          })
+          .catch((err) => {
+            console.log("error", err);
+          });
+
         setAuthenticated(true);
         setLoading(false);
       } else {
