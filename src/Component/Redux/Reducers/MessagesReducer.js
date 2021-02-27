@@ -6,6 +6,7 @@ import {
   FETCH_SPECIFIC_MESSAGES,
   REMOVE_MESSAGE,
   USER_PROFILE_DATA,
+  FETCH_RECIEVER_USER_MESSAGES,
 } from "../Actions/MessagesAction";
 
 const initialState = {
@@ -15,6 +16,7 @@ const initialState = {
   fetchUserMessages: {},
   specificUserMessages: {},
   UserProfileData: {},
+  fetchRecieverMessages: {},
 };
 
 export function MessagesReducer(state = initialState, action) {
@@ -30,7 +32,7 @@ export function MessagesReducer(state = initialState, action) {
       return { ...state, MessagesDailog: false };
 
     case NEW_MESSAGES:
-      return { ...state, MessagesDailog: false, newMessages: action.payload };
+      return { ...state, newMessages: action.payload };
 
     case FETCH_MESSAGES:
       return {
@@ -46,6 +48,9 @@ export function MessagesReducer(state = initialState, action) {
 
     case USER_PROFILE_DATA:
       return { ...state, UserProfileData: action.payload };
+
+    case FETCH_RECIEVER_USER_MESSAGES:
+      return { ...state, fetchRecieverMessages: action.payload };
 
     default:
       return state;

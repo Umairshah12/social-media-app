@@ -80,7 +80,7 @@ export function UserReducer(state = initialState, action) {
         ...state,
         newPosts: action.payload,
         openDailogData: false,
-        commentDailog: false,
+        // commentDailog: false,
       };
 
     case FETCH_ALL_POSTS:

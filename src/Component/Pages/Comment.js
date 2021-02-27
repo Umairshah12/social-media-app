@@ -98,6 +98,12 @@ function Comment(props) {
     setCommentPostImage("");
   };
 
+  const onKeyDown = (event, postCommentId) => {
+    if (event.code === "Enter" || event.code === "NumpadEnter") {
+      makeComment(event, postCommentId);
+    }
+  };
+
   let timestamp = moment().format("h:mm a");
 
   const makeComment = (e, postCommentId) => {
@@ -114,13 +120,16 @@ function Comment(props) {
       commentImageName,
       commentImageType,
     });
+
     dispatch(makeNewPost(makePost));
     clearFields();
+    document.getElementById("textcomment").focus();
   };
 
   return (
     <div>
       <Dialog
+        classes={{ paper: "message-dailog" }}
         fullWidth={true}
         onClose={() => {
           dispatch(closeCommentDailog());
@@ -170,17 +179,6 @@ function Comment(props) {
                 : ""}
             </div>
           </DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            onChange={(e) => {
-              setPostComment(e.target.value);
-            }}
-            label="Leave Comment"
-            type="text"
-            fullWidth
-          />
         </DialogContent>
         <DialogActions className="comment-actions">
           <div className="gallery-input">
@@ -198,25 +196,32 @@ function Comment(props) {
               </Fab>
             </label>
           </div>
+          <input
+            id="textcomment"
+            type="text"
+            placeholder="Type Here..."
+            className="form-control chat-input"
+            onChange={(e) => {
+              setPostComment(e.target.value);
+            }}
+            value={postComment}
+            onKeyDown={(e) => {
+              return postComment === "" && commentPostImage === ""
+                ? ""
+                : onKeyDown(e, postCommentId);
+            }}
+          ></input>
           <div>
             <Button
               variant="contained"
-              onClick={() => {
-                dispatch(closeCommentDailog());
-              }}
-              color="secondary"
-              className="action-cancel"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
               onClick={(e) => {
-                makeComment(e, postCommentId);
+                return postComment === "" && commentPostImage === ""
+                  ? ""
+                  : makeComment(e, postCommentId);
               }}
               color="primary"
             >
-              Post Comment
+              Post
             </Button>
           </div>
         </DialogActions>

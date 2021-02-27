@@ -156,7 +156,11 @@ export default function Content() {
           let id = key;
 
           return (
-            <Card className="card-width" key={key}>
+            <Card
+              className="card-width"
+              classes={{ root: "message-dailog" }}
+              key={key}
+            >
               <PostContent postid={postid} timestamp={timestamp} />
               {allposts[key].filetype === "" && allposts[key].postPic === "" ? (
                 <>
