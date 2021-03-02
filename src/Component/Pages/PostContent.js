@@ -13,11 +13,10 @@ function PostContent(props) {
       .ref(`users/${props.postid}`)
       .on("value", function (snapshot) {
         let snapValue = snapshot.val();
-        // return dispatch(fetchPostUserData(snapValue));
         setImage(snapValue.photoUrl);
         setUserName(snapValue.username);
       });
-  }, []);
+  }, [props.postid]);
 
   return (
     <div>

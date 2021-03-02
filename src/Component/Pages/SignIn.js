@@ -11,10 +11,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import { Link } from "react-router-dom";
 import firebase from "../Services/firebase";
-
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, FailureError } from "../Redux/Actions/UserAction";
-import { LogIn } from "../Services/auth";
 
 const useStyles = makeStyles((theme) => ({
   paper: {

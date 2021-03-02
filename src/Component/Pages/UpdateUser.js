@@ -3,9 +3,7 @@ import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import TextField from "@material-ui/core/TextField";
 import { useDispatch, useSelector } from "react-redux";
 import firebase from "../Services/firebase";
 import { Fab } from "@material-ui/core";
@@ -17,14 +15,10 @@ import {
   UpdateCurrentUser,
 } from "../Redux/Actions/UserAction";
 export default function UpdateUser() {
-  const fetchedUser = useSelector(
-    (state) => state.UserReducer.currentfetchedUser
-  );
-
   const [userName, setUserName] = useState("");
   const [updateUserImage, setUpdateUserImage] = useState("");
   const [updateimagefile, setUpdateImageFile] = useState("");
-  const [updatefiletype, setUpdateFileType] = useState("");
+  // const [updatefiletype, setUpdateFileType] = useState("");
   const [updateimageName, setUpdateImageName] = useState("");
   const [userPostImage, setUserPostImage] = useState("");
   const dispatch = useDispatch();
@@ -43,18 +37,24 @@ export default function UpdateUser() {
         setUserName(snapshot.val().username);
         setUserPostImage(snapshot.val().photoUrl);
       });
-  }, []);
+  }, [Uid]);
 
   const handleUploadUserImage = (event) => {
     let file = event.target.files[0];
     setUpdateImageFile(file);
     setUpdateImageName(file.name);
-    setUpdateFileType(file.type);
+    // setUpdateFileType(file.type);
     let reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = (event) => {
       setUserPostImage(reader.result);
     };
+  };
+
+  const onKeyDown = (event) => {
+    if (event.code === "Enter" || event.code === "NumpadEnter") {
+      handleUpdateUser();
+    }
   };
 
   const handleUpdateUser = () => {
@@ -110,19 +110,6 @@ export default function UpdateUser() {
               )}
             </div>
           </div>
-          <TextField
-            id="filled-password-input"
-            label="user Name"
-            type="text"
-            className="update-user-input"
-            onChange={(e) => {
-              setUserName(e.target.value);
-            }}
-            value={userName}
-            autoComplete="current-password"
-            variant="filled"
-            fullWidth
-          />
         </DialogContent>
         <DialogActions className="dailog-action card-action-border">
           <div className="gallery-input">
@@ -140,18 +127,21 @@ export default function UpdateUser() {
               </Fab>
             </label>
           </div>
+
+          <input
+            id="textcomment"
+            type="text"
+            placeholder="Type Here..."
+            className="form-control chat-input"
+            onChange={(e) => {
+              setUserName(e.target.value);
+            }}
+            value={userName}
+            onKeyDown={(e) => {
+              onKeyDown(e);
+            }}
+          ></input>
           <div>
-            <Button
-              className="action-cancel"
-              variant="contained"
-              autoFocus
-              onClick={() => {
-                dispatch(closeUpdateUserDailog());
-              }}
-              color="secondary"
-            >
-              Cancel
-            </Button>
             <Button
               variant="contained"
               autoFocus
@@ -160,7 +150,7 @@ export default function UpdateUser() {
               }}
               color="primary"
             >
-              Update User
+              Update
             </Button>
           </div>
         </DialogActions>

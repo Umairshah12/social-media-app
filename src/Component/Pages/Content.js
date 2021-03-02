@@ -1,26 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
-import CardHeader from "@material-ui/core/CardHeader";
 import CardMedia from "@material-ui/core/CardMedia";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
-import Collapse from "@material-ui/core/Collapse";
-import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
-import { Button } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 import { red } from "@material-ui/core/colors";
 import ThumbUpAltIcon from "@material-ui/icons/ThumbUpAlt";
 import MessageIcon from "@material-ui/icons/Message";
-import ShareIcon from "@material-ui/icons/Share";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
 import facebook from "../assets/audio/facebook_messenger.mp3";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import { useDispatch, useSelector } from "react-redux";
 import Comment from "../Pages/Comment";
+import NoteAddIcon from "@material-ui/icons/NoteAdd";
 import firebase from "../Services/firebase";
 import PostContent from "../Pages/PostContent";
 import {
@@ -53,8 +47,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Content() {
-  const [author, setAuthor] = useState();
-  const [date, setDate] = useState();
+  // const [author, setAuthor] = useState();
+  // const [date, setDate] = useState();
   const [postImage, setPostImage] = useState();
   const [post, setPost] = useState();
   const [likes, setLikes] = useState(0);
@@ -64,7 +58,7 @@ export default function Content() {
   const classes = useStyles();
   const dispatch = useDispatch();
   const allposts = useSelector((state) => state.UserReducer.fetchPosts);
-  const error = useSelector((state) => state.UserReducer.error);
+  // const error = useSelector((state) => state.UserReducer.error);
   const currentUser = useSelector(
     (state) => state.UserReducer.currentfetchedUser
   );
@@ -142,11 +136,10 @@ export default function Content() {
         let snapValue = snapshot.val();
         dispatch(fetchAllPosts(snapValue));
       });
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="card-container">
-      {error ? <p className="text-danger">{error}</p> : null}
       {allposts != null && Object.keys(allposts).length > 0 ? (
         Object.keys(allposts).map((key) => {
           let postid = allposts[key].uid;
@@ -154,7 +147,6 @@ export default function Content() {
           let comments = allposts[key].comments;
           let timestamp = allposts[key].timestamp;
           let id = key;
-
           return (
             <Card
               className="card-width"
@@ -261,7 +253,12 @@ export default function Content() {
                   className="comment-btn"
                   aria-label="message"
                   onClick={(e) => {
-                    handleClick(key, allposts[key].imageName);
+                    if (
+                      window.confirm(
+                        "Are you sure you wish to delete this Post?"
+                      )
+                    )
+                      handleClick(key, allposts[key].imageName);
                   }}
                 >
                   <DeleteOutlineIcon classes={{ root: "svg-icon" }} />
@@ -272,11 +269,16 @@ export default function Content() {
           );
         })
       ) : (
-        <div className="no-post-msg">
-          <Typography variant="h4" component="h3">
-            NO POSTS AVALIABLE
-          </Typography>
-        </div>
+        <>
+          <div className="no-post-msg">
+            <NoteAddIcon className="post-style" />
+          </div>
+          <div className="post-text">
+            <Typography variant="h4" component="h3">
+              No Posts Avaliable
+            </Typography>
+          </div>
+        </>
       )}
       <Comment />
     </div>

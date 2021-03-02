@@ -16,7 +16,6 @@ export const FETCH_ALL_POST_COMMENTS = "FETCH_ALL_POST_COMMENTS";
 export const OPEN_UPDATE_USER_DAILOG = "OPEN_UPDATE_USER_DAILOG";
 export const CLOSE_UPDATE_USER_DAILOG = "CLOSE_UPDATE_USER_DAILOG";
 export const UPDATE_USER = "UPDATE_USER";
-export const POST_USER_DATA = "POST_USER_DATA";
 
 export const fetchUser = (snapValue) => {
   return {
