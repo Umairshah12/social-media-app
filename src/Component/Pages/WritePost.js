@@ -67,16 +67,13 @@ export default function WritePost() {
   const [filetype, setFileType] = useState("");
   const [imageName, setImageName] = useState("");
   const [colorPicker1, setcolorPicker1] = useState("");
-  const [chooseColor, setChooseColor] = useState(false);
 
   const dispatch = useDispatch();
   const open = useSelector((state) => state.UserReducer.openDailogData);
-  const close = useSelector((state) => state.UserReducer.openDailogData);
   const currentUser = useSelector(
     (state) => state.UserReducer.currentfetchedUser
   );
-  let userPic = currentUser.photoUrl;
-  const fetchPost = firebase.database().ref("Posts");
+
   let timestamp = moment().format("MMMM Do YYYY, h:mm a");
 
   const handleUpload = (event) => {
@@ -119,28 +116,30 @@ export default function WritePost() {
     setImageFile("");
     setFileType("");
     setcolorPicker1("");
-    setChooseColor(false);
   };
 
   const handlePost = (e) => {
-    e.preventDefault();
-    if (imagefile) {
-      uploadImage();
+    if (post === "" && postImage === "" && colorPicker1 === "") {
+      e.preventDefault();
+    } else {
+      if (imagefile) {
+        uploadImage();
+      }
+
+      let postData = {
+        uid: currentUser.id,
+        post: post,
+        timestamp: timestamp,
+        postPic: postImage,
+        filetype,
+        colorPicker1,
+        imageName,
+      };
+
+      let postsData = firebase.database().ref("posts").push(postData);
+      dispatch(makeNewPost(postsData));
+      clearFields();
     }
-
-    let postData = {
-      uid: currentUser.id,
-      post: post,
-      timestamp: timestamp,
-      postPic: postImage,
-      filetype,
-      colorPicker1,
-      imageName,
-    };
-
-    let postsData = firebase.database().ref("posts").push(postData);
-    dispatch(makeNewPost(postsData));
-    clearFields();
   };
 
   return (
@@ -189,10 +188,12 @@ export default function WritePost() {
               onChange={(e) => {
                 setcolorPicker1(e.target.value);
               }}
-            ></input>
+              required
+            />
             <input
               accept="video/*,image/*"
               className="image-input"
+              required
               id="contained-button-file"
               multiple
               type="file"

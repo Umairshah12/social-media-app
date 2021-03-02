@@ -17,14 +17,12 @@ import {
   OPEN_UPDATE_USER_DAILOG,
   CLOSE_UPDATE_USER_DAILOG,
   UPDATE_USER,
-  POST_USER_DATA,
 } from "../Actions/UserAction";
 
 const initialState = {
   users: {},
   loginUser: {},
   errors: "",
-  // fetchPostSinlgeUserData: {},
   currentfetchedUser: {},
   openDailogData: false,
   newPosts: [],

@@ -15,17 +15,17 @@ function MessagesContent(props) {
       .ref(`users/${props.id}`)
       .on("value", function (snapshot) {
         let snapValue = snapshot.val();
+        console.log("snap");
         setImage(snapValue.photoUrl);
         setUserName(snapValue.username);
       });
-  }, []);
+  }, [props.id]);
 
   let uid = firebase.auth().currentUser.uid;
   return (
     <div>
       <List>
         <CardHeader
-          className="card-header-pic"
           className={`${
             props.id === uid ? "card-header-pic " : "card-header-user-recievers"
           }`}
@@ -33,6 +33,7 @@ function MessagesContent(props) {
             <Avatar
               classes={{
                 circular: "comment-circle",
+                // root: props.id === uid ? "sender-avatar" : "",
               }}
               alt="User Icon"
               src={image}
@@ -49,26 +50,32 @@ function MessagesContent(props) {
           title={userName}
           subheader={
             props.postMessage !== "" ? (
-              <div>{props.postMessage}</div>
+              <>
+                <div>{props.postMessage}</div>
+              </>
             ) : props.messageImageType === "video/mp4" ? (
-              <div>
-                <CardMedia
-                  component="video"
-                  image={props.messageImage}
-                  title="title"
-                  className="message-image"
-                  controls
-                  // autoPlay
-                />
-              </div>
+              <>
+                <div>
+                  <CardMedia
+                    component="video"
+                    image={props.messageImage}
+                    title="title"
+                    className="message-image"
+                    controls
+                    // autoPlay
+                  />
+                </div>
+              </>
             ) : (
-              <div>
-                <img
-                  src={props.messageImage && props.messageImage}
-                  alt="media app"
-                  className="message-image"
-                />
-              </div>
+              <>
+                <div>
+                  <img
+                    src={props.messageImage && props.messageImage}
+                    alt="media app"
+                    className="message-image"
+                  />
+                </div>
+              </>
             )
           }
         />

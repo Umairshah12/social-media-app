@@ -6,9 +6,6 @@ import firebase from "../Services/firebase";
 function CommentContent(props) {
   const [image, setImage] = useState("");
   const [userName, setUserName] = useState("");
-
-  console.log("props", props.id);
-
   useEffect(() => {
     firebase
       .database()
@@ -19,7 +16,7 @@ function CommentContent(props) {
         setImage(snapValue.photoUrl);
         setUserName(snapValue.username);
       });
-  }, []);
+  }, [props.id]);
 
   return (
     <div>

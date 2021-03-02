@@ -16,14 +16,12 @@ import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import InboxIcon from "@material-ui/icons/MoveToInbox";
-import MailIcon from "@material-ui/icons/Mail";
 import userProfile from "../assets/images/userprofile.png";
 import Content from "./Content";
 import WritePost from "./WritePost";
 import Messages from "./Messages";
 import UpdateUser from "./UpdateUser";
-// import Navbar from "./Navbar";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import { Link } from "react-router-dom";
 import { auth } from "../Services/firebase";
 import { Button } from "@material-ui/core";
@@ -38,9 +36,9 @@ import {
 import {
   openMessagesDailog,
   fetchMessages,
-  fetchSpecificUserMessages,
   fetchSinlgeUserProfile,
   fetchRecieverUserMessages,
+  getChatKey,
 } from "../Redux/Actions/MessagesAction";
 import firebase from "../Services/firebase";
 
@@ -109,32 +107,16 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Main(props) {
-  let UID = firebase.auth().currentUser.uid;
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const [count, setCount] = React.useState("");
-  const [userNotification, setUserNotifcation] = React.useState("");
+  const [progressLoading, setProgressLoading] = React.useState(true);
 
   const dispatch = useDispatch();
-  const fetchedUser = useSelector(
-    (state) => state.UserReducer.currentfetchedUser
-  );
   const users = useSelector((state) => state.UserReducer.users);
   const currentUser = useSelector(
     (state) => state.UserReducer.currentfetchedUser
   );
-
-  const specificCountMessage = useSelector(
-    (state) => state.MessagesReducer.specificUserMessages
-  );
-
-  const recieverMessages = useSelector(
-    (state) => state.MessagesReducer.fetchRecieverMessages
-  );
-
-  console.log("reciver mESSAGES", recieverMessages);
-  console.log("all mESSAGES", specificCountMessage);
 
   let uid = firebase.auth().currentUser.uid;
 
@@ -145,55 +127,64 @@ function Main(props) {
       .on("value", function (snapshot) {
         let alldatamessages = snapshot.val();
         dispatch(fetchMessages(alldatamessages));
+        setProgressLoading(false);
       });
-  }, []);
+  }, [dispatch]);
 
-  console.log("count", count);
-  const specificMessages = (id) => {
+  const specificMessages = (key) => {
+    let chatKey = "";
+    let friendList = { friendId: key, userId: uid };
+    let db = firebase.database().ref("friend_list");
+    let flag = false;
+    db.on("value", function (friends) {
+      friends.forEach(function (data) {
+        let user = data.val();
+        if (
+          (user.friendId === friendList.friendId &&
+            user.userId === friendList.userId) ||
+          (user.friendId === friendList.userId &&
+            user.userId === friendList.friendId)
+        ) {
+          flag = true;
+          chatKey = data.key;
+        }
+      });
+      if (flag === false) {
+        chatKey = firebase
+          .database()
+          .ref("friend_list")
+          .push(friendList)
+          .getKey();
+      }
+      dispatch(openMessagesDailog(key));
+      dispatch(getChatKey(chatKey));
+      setProgressLoading(false);
+
+      let chatdb = firebase.database().ref(`Chat-Messages/${chatKey}`);
+      chatdb.on("value", function (loadchat) {
+        let chats = loadchat.val();
+        dispatch(fetchRecieverUserMessages(chats));
+      });
+    });
+
     firebase
       .database()
-      .ref(`messages/${id}/${uid}`)
-      .on("value", function (snapshot) {
-        dispatch(fetchSpecificUserMessages(snapshot.val()));
-        dispatch(openMessagesDailog(id));
-      });
-
-    firebase
-      .database()
-      .ref(`messages/${uid}/${id}`)
-      .on("value", function (snapshot) {
-        dispatch(fetchRecieverUserMessages(snapshot.val()));
-        dispatch(openMessagesDailog(id));
-      });
-
-    firebase
-      .database()
-      .ref(`users/${id}`)
+      .ref(`users/${key}`)
       .on("value", function (snapshot) {
         dispatch(fetchSinlgeUserProfile(snapshot.val()));
+        setProgressLoading(false);
       });
   };
-
-  // useEffect(() => {
-  //   firebase
-  //     .database()
-  //     .ref(`messages/${uid}/count`)
-  //     .on("value", function (snapshot) {
-  //       setCount(snapshot.val());
-  //       // dispatch(fetchRecieverUserMessages(snapshot.val()));
-  //       // dispatch(openMessagesDailog(id));
-  //     });
-  // }, []);
 
   // Fetching single user record
   useEffect(() => {
     firebase
       .database()
-      .ref(`users/${UID}`)
+      .ref(`users/${uid}`)
       .on("value", function (snapshot) {
-        return dispatch(fetchUser(snapshot.val()));
+        dispatch(fetchUser(snapshot.val()));
       });
-  }, []);
+  }, [dispatch, uid]);
 
   const LogOutUser = () => {
     let res = firebase.database().ref(`users/${uid}`).update({
@@ -209,10 +200,10 @@ function Main(props) {
       .ref(`users/`)
       .on("value", function (snapshot) {
         if (snapshot.val().id !== uid) {
-          return dispatch(fetchAllUsers(snapshot.val()));
+          dispatch(fetchAllUsers(snapshot.val()));
         }
       });
-  }, []);
+  }, [dispatch, uid]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -227,184 +218,177 @@ function Main(props) {
   };
 
   return (
-    <div className={classes.root}>
-      <CssBaseline />
-      <AppBar
-        position="fixed"
-        className={clsx(classes.appBar, {
-          [classes.appBarShift]: open,
-        })}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            className={clsx(classes.menuButton, {
-              [classes.hide]: open,
+    <>
+      {progressLoading === true ? (
+        <div className="circular-progressBar">
+          <CircularProgress className="progressbar-design" />
+        </div>
+      ) : (
+        <div className={classes.root}>
+          <CssBaseline />
+          <AppBar
+            position="fixed"
+            className={clsx(classes.appBar, {
+              [classes.appBarShift]: open,
             })}
           >
-            <MenuIcon />
-          </IconButton>
+            <Toolbar>
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                onClick={handleDrawerOpen}
+                edge="start"
+                className={clsx(classes.menuButton, {
+                  [classes.hide]: open,
+                })}
+              >
+                <MenuIcon />
+              </IconButton>
 
-          <div className="nav-left">
-            <div className="icon-container">
-              {currentUser.photoUrl === "" ? (
-                <img
-                  src={userProfile}
-                  alt="media app"
-                  className="logo-img"
-                  onClick={() => {
-                    handleUpdateUser(UID);
-                  }}
-                />
-              ) : (
-                <img
-                  src={currentUser.photoUrl}
-                  alt="media app"
-                  className="logo-img"
-                  onClick={() => {
-                    handleUpdateUser(currentUser.id);
-                  }}
-                />
-              )}
-
-              <div className="logged-in"></div>
-            </div>
-
-            <Typography variant="h5" component="h5" className="app-title">
-              Social Media App
-            </Typography>
-          </div>
-          <div className="nav-right">
-            {auth().currentUser ? (
-              <>
-                <Link to="/">
-                  <Button
-                    variant="contained"
-                    color="default"
-                    className="btn-position"
-                    onClick={() => {
-                      LogOutUser();
-                    }}
-                  >
-                    Logout
-                  </Button>
-                </Link>
-
-                <Button
-                  variant="contained"
-                  color="default"
-                  onClick={() => {
-                    dispatch(openDailog());
-                  }}
-                  className="add-post-btn"
-                  startIcon={<AddIcon />}
-                >
-                  ADD POST
-                </Button>
-              </>
-            ) : (
-              <>""</>
-            )}
-          </div>
-        </Toolbar>
-      </AppBar>
-      <Drawer
-        variant="permanent"
-        className={clsx(classes.drawer, {
-          [classes.drawerOpen]: open,
-          [classes.drawerClose]: !open,
-        })}
-        classes={{
-          paper: clsx({
-            [classes.drawerOpen]: open,
-            [classes.drawerClose]: !open,
-          }),
-        }}
-      >
-        <div className={classes.toolbar}>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? (
-              <ChevronRightIcon />
-            ) : (
-              <ChevronLeftIcon />
-            )}
-          </IconButton>
-        </div>
-        <Divider />
-        <List>
-          {users != null &&
-            Object.keys(users).map((key) => {
-              return (
-                <ListItem button key={key}>
-                  {uid === users[key].id ? (
-                    ""
+              <div className="nav-left">
+                <div className="icon-container">
+                  {currentUser.photoUrl === "" ? (
+                    <img
+                      src={userProfile}
+                      alt="media app"
+                      className="logo-img"
+                      onClick={() => {
+                        handleUpdateUser(uid);
+                      }}
+                    />
                   ) : (
-                    <>
-                      <ListItemIcon
-                        onClick={() => {
-                          specificMessages(users[key].id);
-                          setCount("");
-                        }}
-                      >
-                        <div className="icon-container">
-                          {users[key].photoUrl === "" ? (
-                            <img
-                              src={userProfile}
-                              alt="media app"
-                              className="logo-img"
-                            />
-                          ) : (
-                            <img
-                              src={users[key].photoUrl}
-                              alt="media app"
-                              className="logo-img"
-                            />
-                          )}
-                          {users[key].isOnline ? (
-                            <div className="logged-in"></div>
-                          ) : (
-                            <div className="logged-out"></div>
-                          )}
-                        </div>
-                      </ListItemIcon>
-
-                      <ListItemText
-                        classes={{ root: "listitem-text-root" }}
-                        primary={users[key].username}
-                      />
-                    </>
+                    <img
+                      src={currentUser.photoUrl}
+                      alt="media app"
+                      className="logo-img"
+                      onClick={() => {
+                        handleUpdateUser(currentUser.id);
+                      }}
+                    />
                   )}
 
-                  {recieverMessages !== null &&
-                    Object.keys(recieverMessages).map((item) => {
-                      let countedItem = recieverMessages[item].cpunt;
-                      // console.log("id", countedItem);
+                  <div className="logged-in"></div>
+                </div>
 
-                      return (
-                        <>
-                          {recieverMessages[item].MessageFrom === users[key].id
-                            ? count
-                            : ""}
-                        </>
-                      );
-                    })}
-                </ListItem>
-              );
+                <Typography variant="h5" component="h5" className="app-title">
+                  Social Media App
+                </Typography>
+              </div>
+              <div className="nav-right">
+                {auth().currentUser ? (
+                  <>
+                    <Link to="/">
+                      <Button
+                        variant="contained"
+                        color="default"
+                        className="btn-position"
+                        onClick={() => {
+                          LogOutUser();
+                        }}
+                      >
+                        Logout
+                      </Button>
+                    </Link>
+
+                    <Button
+                      variant="contained"
+                      color="default"
+                      onClick={() => {
+                        dispatch(openDailog());
+                      }}
+                      className="add-post-btn"
+                      startIcon={<AddIcon />}
+                    >
+                      ADD POST
+                    </Button>
+                  </>
+                ) : (
+                  <>""</>
+                )}
+              </div>
+            </Toolbar>
+          </AppBar>
+          <Drawer
+            variant="permanent"
+            className={clsx(classes.drawer, {
+              [classes.drawerOpen]: open,
+              [classes.drawerClose]: !open,
             })}
-        </List>
-        <Divider />
-      </Drawer>
-      <WritePost />
-      <main className={classes.content}>
-        <div className={classes.toolbar} />
-        <Content />
-        <UpdateUser />
-        <Messages />
-      </main>
-    </div>
+            classes={{
+              paper: clsx({
+                [classes.drawerOpen]: open,
+                [classes.drawerClose]: !open,
+              }),
+            }}
+          >
+            <div className={classes.toolbar}>
+              <IconButton onClick={handleDrawerClose}>
+                {theme.direction === "rtl" ? (
+                  <ChevronRightIcon />
+                ) : (
+                  <ChevronLeftIcon />
+                )}
+              </IconButton>
+            </div>
+            <Divider />
+            <List>
+              {users != null &&
+                Object.keys(users).map((key) => {
+                  return (
+                    <ListItem button key={key}>
+                      {uid === users[key].id ? (
+                        ""
+                      ) : (
+                        <>
+                          <ListItemIcon
+                            onClick={() => {
+                              specificMessages(key);
+                            }}
+                          >
+                            <div className="icon-container">
+                              {users[key].photoUrl === "" ? (
+                                <img
+                                  src={userProfile}
+                                  alt="media app"
+                                  className="logo-img"
+                                />
+                              ) : (
+                                <img
+                                  src={users[key].photoUrl}
+                                  alt="media app"
+                                  className="logo-img"
+                                />
+                              )}
+                              {users[key].isOnline ? (
+                                <div className="logged-in"></div>
+                              ) : (
+                                <div className="logged-out"></div>
+                              )}
+                            </div>
+                          </ListItemIcon>
+
+                          <ListItemText
+                            classes={{ root: "listitem-text-root" }}
+                            primary={users[key].username}
+                          />
+                        </>
+                      )}
+                    </ListItem>
+                  );
+                })}
+            </List>
+            <Divider />
+          </Drawer>
+          <WritePost />
+          <main className={classes.content}>
+            <div className={classes.toolbar} />
+            <Content />
+            <UpdateUser />
+            <Messages />
+          </main>
+        </div>
+      )}
+    </>
   );
 }
 

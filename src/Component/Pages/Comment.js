@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Button from "@material-ui/core/Button";
 import firebase from "../Services/firebase";
-import TextField from "@material-ui/core/TextField";
-import { Typography } from "@material-ui/core";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import List from "@material-ui/core/List";
 import CommentContent from "../Pages/CommentContent";
+import CloseIcon from "@material-ui/icons/Close";
 import ImageIcon from "@material-ui/icons/Image";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import IconButton from "@material-ui/core/IconButton";
@@ -17,6 +15,7 @@ import { Fab } from "@material-ui/core";
 import { storage } from "../Services/firebase";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
+import CommentIcon from "@material-ui/icons/Comment";
 import {
   makeNewPost,
   closeCommentDailog,
@@ -32,9 +31,7 @@ function Comment(props) {
   const [commentPostImage, setCommentPostImage] = useState("");
   const dispatch = useDispatch();
   const open = useSelector((state) => state.UserReducer.commentDailog);
-  const close = useSelector((state) => state.UserReducer.commentDailog);
   const postCommentId = useSelector((state) => state.UserReducer.commentId);
-  const error = useSelector((state) => state.UserReducer.error);
 
   const comments = useSelector(
     (state) => state.UserReducer.postSpecificComments
@@ -107,23 +104,26 @@ function Comment(props) {
   let timestamp = moment().format("h:mm a");
 
   const makeComment = (e, postCommentId) => {
-    e.preventDefault();
-    if (commentFile) {
-      uploadImage();
-    }
-    let makePost = firebase.database().ref(`posts/${postCommentId}/comments`);
-    makePost.push({
-      id: currentUser.id,
-      postComment: postComment,
-      timestamp: timestamp,
-      commentImage: commentPostImage,
-      commentImageName,
-      commentImageType,
-    });
+    if (postComment === "" && commentPostImage === "") {
+      e.preventDefault();
+    } else {
+      if (commentFile) {
+        uploadImage();
+      }
+      let makePost = firebase.database().ref(`posts/${postCommentId}/comments`);
+      makePost.push({
+        id: currentUser.id,
+        postComment: postComment,
+        timestamp: timestamp,
+        commentImage: commentPostImage,
+        commentImageName,
+        commentImageType,
+      });
 
-    dispatch(makeNewPost(makePost));
-    clearFields();
-    document.getElementById("textcomment").focus();
+      dispatch(makeNewPost(makePost));
+      clearFields();
+      document.getElementById("textcomment").focus();
+    }
   };
 
   return (
@@ -139,45 +139,62 @@ function Comment(props) {
       >
         <DialogTitle className="comment-header" id="form-dialog-title">
           Comments
+          <IconButton className="close-icon">
+            <CloseIcon
+              className="close-icon"
+              onClick={() => {
+                dispatch(closeCommentDailog());
+              }}
+            />
+          </IconButton>
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            <div>
-              {/* {error ? <p className="text-danger">{error}</p> : null} */}
-              {comments != null && Object.keys(comments).length > 0
-                ? Object.keys(comments).map((key) => {
-                    let postComment = comments[key].postComment;
-                    let commentImage = comments[key].commentImage;
-                    let id = comments[key].id;
-                    return (
-                      <div key={key}>
-                        <CommentContent
-                          postComment={postComment}
-                          id={id}
-                          commentImage={commentImage}
-                        />
-                        <div className="commment-post-time">
-                          <IconButton
-                            className="comment-btn"
-                            aria-label="message"
-                            onClick={() => {
-                              handleDeleteComment(
-                                key,
-                                comments[key].commentImageName &&
-                                  comments[key].commentImageName
-                              );
-                            }}
-                          >
-                            <DeleteOutlineIcon classes={{ root: "svg-icon" }} />
-                            Delete comment
-                          </IconButton>
-                          {comments[key].timestamp}
-                        </div>
-                      </div>
-                    );
-                  })
-                : ""}
-            </div>
+            {comments != null && Object.keys(comments).length > 0 ? (
+              Object.keys(comments).map((key) => {
+                let postComment = comments[key].postComment;
+                let commentImage = comments[key].commentImage;
+                let id = comments[key].id;
+                return (
+                  <div key={key}>
+                    <CommentContent
+                      postComment={postComment}
+                      id={id}
+                      commentImage={commentImage}
+                    />
+                    <div className="commment-post-time">
+                      <IconButton
+                        className="comment-btn"
+                        aria-label="message"
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              "Are you sure you wish to delete this Comment?"
+                            )
+                          )
+                            handleDeleteComment(
+                              key,
+                              comments[key].commentImageName &&
+                                comments[key].commentImageName
+                            );
+                        }}
+                      >
+                        <DeleteOutlineIcon classes={{ root: "svg-icon" }} />
+                        Delete comment
+                      </IconButton>
+                      {comments[key].timestamp}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <>
+                <div className="chat-message">
+                  <CommentIcon className="post-style" />
+                </div>
+                <p className="chat-message">Empty Comments</p>
+              </>
+            )}
           </DialogContentText>
         </DialogContent>
         <DialogActions className="comment-actions">
@@ -215,9 +232,7 @@ function Comment(props) {
             <Button
               variant="contained"
               onClick={(e) => {
-                return postComment === "" && commentPostImage === ""
-                  ? ""
-                  : makeComment(e, postCommentId);
+                makeComment(e, postCommentId);
               }}
               color="primary"
             >
