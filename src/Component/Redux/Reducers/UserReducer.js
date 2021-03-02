@@ -9,6 +9,14 @@ import {
   CLOSE_DAILOG,
   NEW_POST,
   FETCH_ALL_POSTS,
+  REMOVE_POST,
+  OPEN_COMMENT_DAILOG,
+  CLOSE_COMMENT_DAILOG,
+  FETCH_ALL_POST_COMMENTS,
+  REMOVE_COMMENT,
+  OPEN_UPDATE_USER_DAILOG,
+  CLOSE_UPDATE_USER_DAILOG,
+  UPDATE_USER,
 } from "../Actions/UserAction";
 
 const initialState = {
@@ -18,7 +26,12 @@ const initialState = {
   currentfetchedUser: {},
   openDailogData: false,
   newPosts: [],
+  postSpecificComments: [],
   fetchPosts: [],
+  commentDailog: false,
+  commentId: "",
+  userUpdateDailog: false,
+  updateUserId: "",
 };
 
 export function UserReducer(state = initialState, action) {
@@ -26,7 +39,6 @@ export function UserReducer(state = initialState, action) {
     case REGISTER_USER:
       return {
         ...state,
-        // users: action.payload,
         error: "",
       };
 
@@ -43,6 +55,7 @@ export function UserReducer(state = initialState, action) {
         loginUser: {},
         users: [],
         error: "",
+        currentfetchedUser: {},
       };
 
     case FAILIURE_ERRORS:
@@ -61,10 +74,60 @@ export function UserReducer(state = initialState, action) {
       return { ...state, openDailogData: false };
 
     case NEW_POST:
-      return { ...state, newPosts: action.payload, openDailogData: false };
+      return {
+        ...state,
+        newPosts: action.payload,
+        openDailogData: false,
+        // commentDailog: false,
+      };
 
     case FETCH_ALL_POSTS:
       return { ...state, fetchPosts: action.payload };
+
+    case REMOVE_POST:
+      return { ...state };
+
+    case OPEN_COMMENT_DAILOG:
+      return {
+        ...state,
+        commentDailog: true,
+        commentId: action.payload,
+      };
+
+    case CLOSE_COMMENT_DAILOG:
+      return { ...state, commentDailog: false };
+
+    case FETCH_ALL_POST_COMMENTS:
+      return { ...state, postSpecificComments: action.payload };
+
+    case REMOVE_COMMENT:
+      return { ...state };
+
+    case OPEN_UPDATE_USER_DAILOG:
+      return {
+        ...state,
+        userUpdateDailog: true,
+        updateUserId: action.payload,
+      };
+
+    case CLOSE_UPDATE_USER_DAILOG:
+      return {
+        ...state,
+        userUpdateDailog: false,
+      };
+
+    // case POST_USER_DATA:
+    //   return {
+    //     ...state,
+    //     fetchPostSinlgeUserData: action.payload,
+    //   };
+
+    case UPDATE_USER:
+      return {
+        ...state,
+        userUpdateDailog: false,
+      };
+
     default:
       return state;
   }

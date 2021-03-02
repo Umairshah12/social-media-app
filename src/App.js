@@ -7,13 +7,11 @@ import {
   Switch,
   Redirect,
 } from "react-router-dom";
-import { Button, Spinner } from "react-bootstrap";
-import { useSelector, useDispatch } from "react-redux";
+
 import SignUp from "./Component/Pages/SignUp";
 import SignIn from "./Component/Pages/SignIn";
-import Content from "./Component/Pages/Content";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import Main from "./Component/Pages/Main";
-import Navbar from "./Component/Pages/Navbar";
 import firebase from "./Component/Services/firebase";
 
 function PrivateRoute({ component: Component, authenticated, ...rest }) {
@@ -53,6 +51,23 @@ function App(props) {
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged(function (user) {
       if (user) {
+        const messaging = firebase.messaging();
+        messaging
+          .requestPermission()
+          .then(function () {
+            return messaging.getToken();
+          })
+          .then(function (token) {
+            firebase
+              .database()
+              .ref("fcmToken")
+              .child(user.uid)
+              .set({ token_id: token });
+          })
+          .catch((err) => {
+            console.log("error", err);
+          });
+
         setAuthenticated(true);
         setLoading(false);
       } else {
@@ -64,27 +79,12 @@ function App(props) {
   }, []);
 
   return loading === true ? (
-    <Button variant="primary" disabled>
-      <Spinner
-        as="span"
-        animation="grow"
-        size="sm"
-        role="status"
-        aria-hidden="true"
-      />
-      Loading...
-    </Button>
+    <div className="circular-progressBar">
+      <CircularProgress className="progressbar-design" />
+    </div>
   ) : (
     <Router>
-      {/* <Navbar /> */}
       <Switch>
-        {/* <Route exact path="/" render={(props) => <Home {...props} />} /> */}
-        {/* <PrivateRoute
-          exact
-          path="/content"
-          component={Content}
-          authenticated={authenticated}
-        /> */}
         <PrivateRoute
           exact
           path="/main"

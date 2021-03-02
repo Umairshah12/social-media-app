@@ -3,8 +3,6 @@ import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
@@ -12,9 +10,9 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import { Link } from "react-router-dom";
+import firebase from "../Services/firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, FailureError } from "../Redux/Actions/UserAction";
-import { LogIn } from "../Services/auth";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -52,9 +50,14 @@ function SignIn(props) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const loginData = await LogIn(email, password);
-      if (loginUser) {
-        dispatch(loginUser(loginData));
+      const user = await firebase // LogIn(email, password);
+        .auth()
+        .signInWithEmailAndPassword(email, password);
+      if (user) {
+        await firebase.database().ref(`users/${user.uid}`).update({
+          isOnline: true,
+        });
+        dispatch(loginUser(user));
         props.history.push("/main");
         resetFields();
       } else {

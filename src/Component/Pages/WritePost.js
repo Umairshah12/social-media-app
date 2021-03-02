@@ -61,23 +61,25 @@ const DialogActions = withStyles((theme) => ({
   },
 }))(MuiDialogActions);
 export default function WritePost() {
-  const [post, setPost] = useState();
-  const [postImage, setPostImage] = useState();
-  const [imagefile, setImageFile] = useState();
-  const [filetype, setFileType] = useState();
+  const [post, setPost] = useState("");
+  const [postImage, setPostImage] = useState("");
+  const [imagefile, setImageFile] = useState("");
+  const [filetype, setFileType] = useState("");
+  const [imageName, setImageName] = useState("");
+  const [colorPicker1, setcolorPicker1] = useState("");
+
   const dispatch = useDispatch();
   const open = useSelector((state) => state.UserReducer.openDailogData);
-  const close = useSelector((state) => state.UserReducer.openDailogData);
   const currentUser = useSelector(
     (state) => state.UserReducer.currentfetchedUser
   );
 
-  const fetchPost = firebase.database().ref("Posts");
-  let timestamp = moment().format("MMMM Do YYYY, h:mm:ss a");
+  let timestamp = moment().format("MMMM Do YYYY, h:mm a");
 
   const handleUpload = (event) => {
     let file = event.target.files[0];
     setImageFile(file);
+    setImageName(file.name);
     setFileType(file.type);
     let reader = new FileReader();
     reader.readAsDataURL(file);
@@ -108,55 +110,51 @@ export default function WritePost() {
     );
   };
 
-  const handlePost = (e) => {
-    e.preventDefault();
-
-    fetchPost.on("value", (snapshot) => {
-      if (snapshot.exists()) {
-        uploadImage();
-        let postData = {
-          uid: currentUser.id,
-          author: currentUser.username,
-          post: post,
-          timestamp: timestamp,
-          postPic: postImage,
-          filetype,
-        };
-        let postsData = firebase
-          .database()
-          .ref("posts")
-          .once("value")
-          .then(function (snapshot) {
-            snapshot.forEach(function (postSnapshot) {
-              postSnapshot.child("newPosts").ref.push(postData);
-            });
-          });
-        return dispatch(makeNewPost(postsData));
-      } else {
-        uploadImage();
-        let newPost = firebase.database().ref("posts/").push({
-          uid: currentUser.id,
-          author: currentUser.username,
-          post: post,
-          timestamp: timestamp,
-          postPic: postImage,
-          filetype,
-        });
-        return dispatch(dispatch(makeNewPost(newPost)));
-      }
-    });
+  const clearFields = () => {
     setPost("");
+    setPostImage("");
+    setImageFile("");
+    setFileType("");
+    setcolorPicker1("");
+  };
+
+  const handlePost = (e) => {
+    if (post === "" && postImage === "" && colorPicker1 === "") {
+      e.preventDefault();
+    } else {
+      if (imagefile) {
+        uploadImage();
+      }
+
+      let postData = {
+        uid: currentUser.id,
+        post: post,
+        timestamp: timestamp,
+        postPic: postImage,
+        filetype,
+        colorPicker1,
+        imageName,
+      };
+
+      let postsData = firebase.database().ref("posts").push(postData);
+      dispatch(makeNewPost(postsData));
+      clearFields();
+    }
   };
 
   return (
     <div>
       <Dialog
-        onClose={close}
+        classes={{ paper: "message-dailog" }}
+        fullWidth={true}
+        onClose={() => {
+          dispatch(closeDailog());
+        }}
         aria-labelledby="customized-dialog-title"
         open={open}
       >
         <DialogTitle
-          className="dialog-w"
+          classes={{ root: "post-title" }}
           id="customized-dialog-title"
           onClose={() => {
             dispatch(closeDailog());
@@ -176,28 +174,58 @@ export default function WritePost() {
                 setPost(e.target.value);
               }}
               rows={4}
-              // defaultValue="Create Post........"
               variant="outlined"
             />
           </form>
         </DialogContent>
         <DialogActions className="dailog-action">
-          <input
-            accept="image/*"
-            className="image-input"
-            id="contained-button-file"
-            multiple
-            type="file"
-            onChange={handleUpload}
-          />
-          <label htmlFor="contained-button-file">
-            <Fab component="span" className="image-icon">
-              <ImageIcon />
-            </Fab>
-          </label>
-          <Button autoFocus onClick={handlePost} color="primary">
-            Post
-          </Button>
+          <div className="gallery-color-input">
+            <input
+              type="color"
+              value={colorPicker1}
+              className="bar"
+              id="colour"
+              onChange={(e) => {
+                setcolorPicker1(e.target.value);
+              }}
+              required
+            />
+            <input
+              accept="video/*,image/*"
+              className="image-input"
+              required
+              id="contained-button-file"
+              multiple
+              type="file"
+              onChange={handleUpload}
+            />
+            <label className="label-size" htmlFor="contained-button-file">
+              <Fab component="span">
+                <ImageIcon />
+              </Fab>
+            </label>
+          </div>
+          <div>
+            <Button
+              className="action-cancel"
+              variant="contained"
+              autoFocus
+              onClick={() => {
+                dispatch(closeDailog());
+              }}
+              color="secondary"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              autoFocus
+              onClick={handlePost}
+              color="primary"
+            >
+              Post
+            </Button>
+          </div>
         </DialogActions>
       </Dialog>
     </div>
