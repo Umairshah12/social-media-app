@@ -24,7 +24,7 @@ import UpdateUser from "./UpdateUser";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Link } from "react-router-dom";
 import { auth } from "../Services/firebase";
-import contentBg from "../assets/images/chat-img5.jpg";
+import contentBg from "../assets/images/chat-img2.jpg";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import { useDispatch, useSelector } from "react-redux";
 import {
