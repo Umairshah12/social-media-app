@@ -137,7 +137,11 @@ function Comment(props) {
         aria-labelledby="form-dialog-title"
         open={open}
       >
-        <DialogTitle className="comment-header" id="form-dialog-title">
+        <DialogTitle
+          classes={{ root: "comment-header-root" }}
+          className="comment-header"
+          id="form-dialog-title"
+        >
           Comments
           <IconButton className="close-icon">
             <CloseIcon
@@ -148,7 +152,7 @@ function Comment(props) {
             />
           </IconButton>
         </DialogTitle>
-        <DialogContent>
+        <DialogContent classes={{ root: "comment-bg" }}>
           <DialogContentText>
             {comments != null && Object.keys(comments).length > 0 ? (
               Object.keys(comments).map((key) => {
@@ -236,7 +240,7 @@ function Comment(props) {
               }}
               color="primary"
             >
-              Post
+              Send
             </Button>
           </div>
         </DialogActions>

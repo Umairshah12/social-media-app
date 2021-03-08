@@ -47,8 +47,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Content() {
-  // const [author, setAuthor] = useState();
-  // const [date, setDate] = useState();
   const [postImage, setPostImage] = useState();
   const [post, setPost] = useState();
   const [likes, setLikes] = useState(0);
@@ -58,7 +56,6 @@ export default function Content() {
   const classes = useStyles();
   const dispatch = useDispatch();
   const allposts = useSelector((state) => state.UserReducer.fetchPosts);
-  // const error = useSelector((state) => state.UserReducer.error);
   const currentUser = useSelector(
     (state) => state.UserReducer.currentfetchedUser
   );
