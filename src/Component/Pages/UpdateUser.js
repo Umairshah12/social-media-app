@@ -16,10 +16,7 @@ import {
 } from "../Redux/Actions/UserAction";
 export default function UpdateUser() {
   const [userName, setUserName] = useState("");
-  const [updateUserImage, setUpdateUserImage] = useState("");
   const [updateimagefile, setUpdateImageFile] = useState("");
-  // const [updatefiletype, setUpdateFileType] = useState("");
-  const [updateimageName, setUpdateImageName] = useState("");
   const [userPostImage, setUserPostImage] = useState("");
   const dispatch = useDispatch();
 
@@ -28,7 +25,6 @@ export default function UpdateUser() {
     (state) => state.UserReducer.userUpdateDailog
   );
 
-  console.log("image file", updateimagefile);
   useEffect(() => {
     firebase
       .database()
@@ -42,8 +38,6 @@ export default function UpdateUser() {
   const handleUploadUserImage = (event) => {
     let file = event.target.files[0];
     setUpdateImageFile(file);
-    setUpdateImageName(file.name);
-    // setUpdateFileType(file.type);
     let reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = (event) => {
