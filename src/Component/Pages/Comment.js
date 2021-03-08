@@ -143,13 +143,13 @@ function Comment(props) {
           id="form-dialog-title"
         >
           Comments
-          <IconButton className="close-icon">
-            <CloseIcon
-              className="close-icon"
-              onClick={() => {
-                dispatch(closeCommentDailog());
-              }}
-            />
+          <IconButton
+            className="close-icon"
+            onClick={() => {
+              dispatch(closeCommentDailog());
+            }}
+          >
+            <CloseIcon className="close-icon" />
           </IconButton>
         </DialogTitle>
         <DialogContent classes={{ root: "comment-bg" }}>
