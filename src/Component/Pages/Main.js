@@ -18,6 +18,8 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import userProfile from "../assets/images/userprofile.png";
 import Content from "./Content";
+import MenuItem from "@material-ui/core/MenuItem";
+import AccountCircle from "@material-ui/icons/AccountCircle";
 import WritePost from "./WritePost";
 import Messages from "./Messages";
 import UpdateUser from "./UpdateUser";
@@ -25,6 +27,8 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import { Link } from "react-router-dom";
 import { auth } from "../Services/firebase";
 import { Button } from "@material-ui/core";
+import contentBg from "../assets/images/chat-img5.jpg";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
 import { useDispatch, useSelector } from "react-redux";
 import {
   logOutUser,
@@ -101,8 +105,12 @@ const useStyles = makeStyles((theme) => ({
     ...theme.mixins.toolbar,
   },
   content: {
+    minHeight: 722,
     flexGrow: 1,
     padding: theme.spacing(3),
+    backgroundImage: `url(${contentBg})`,
+    backgroundPosition: "center",
+    backgroundSize: "cover",
   },
 }));
 
@@ -270,7 +278,7 @@ function Main(props) {
                   <div className="logged-in"></div>
                 </div>
 
-                <Typography variant="h5" component="h5" className="app-title">
+                <Typography variant="h6" component="h6" className="app-title">
                   Social Media App
                 </Typography>
               </div>
@@ -278,29 +286,19 @@ function Main(props) {
                 {auth().currentUser ? (
                   <>
                     <Link to="/">
-                      <Button
-                        variant="contained"
-                        color="default"
-                        className="btn-position"
+                      <AccountCircle
                         onClick={() => {
                           LogOutUser();
                         }}
-                      >
-                        Logout
-                      </Button>
+                        className="btn-position"
+                      />
                     </Link>
-
-                    <Button
-                      variant="contained"
-                      color="default"
+                    <AddCircleIcon
                       onClick={() => {
                         dispatch(openDailog());
                       }}
                       className="add-post-btn"
-                      startIcon={<AddIcon />}
-                    >
-                      ADD POST
-                    </Button>
+                    />
                   </>
                 ) : (
                   <>""</>

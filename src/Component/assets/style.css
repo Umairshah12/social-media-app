@@ -66,6 +66,7 @@
 
 .btn-position {
   float: right;
+  color: #eaeaea;
 }
 
 .card-container {
@@ -94,6 +95,9 @@
 .comment-header h2 {
   font-weight: 700 !important;
   /* font-size: 18px; */
+}
+.comment-header-root {
+  padding: 9px 24px !important;
 }
 
 .dialog-w {
@@ -161,6 +165,8 @@
 .add-post-btn {
   float: right;
   margin-right: 20px !important;
+  cursor: pointer;
+  color: #eaeaea;
 }
 
 input[type="color"] {
@@ -421,6 +427,12 @@ img {
 .chat-root {
   overflow-y: scroll !important;
   overflow-x: hidden !important;
+  background-image: url("../assets/images/message-bg.jpg");
+  background-size: cover;
+}
+.comment-bg {
+  background-image: url("../assets/images/comment-bg.jpg");
+  background-size: cover;
 }
 
 .circular-progressBar {
@@ -461,6 +473,12 @@ img {
   .nav-right {
     width: 100% !important;
     flex-direction: column;
+  }
+}
+
+@media (max-width: 561px) {
+  .app-title {
+    display: none;
   }
 }
 
