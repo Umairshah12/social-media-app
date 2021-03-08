@@ -9,7 +9,6 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import Typography from "@material-ui/core/Typography";
 import Divider from "@material-ui/core/Divider";
 import IconButton from "@material-ui/core/IconButton";
-import AddIcon from "@material-ui/icons/Add";
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
@@ -18,7 +17,6 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import userProfile from "../assets/images/userprofile.png";
 import Content from "./Content";
-import MenuItem from "@material-ui/core/MenuItem";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import WritePost from "./WritePost";
 import Messages from "./Messages";
@@ -26,7 +24,6 @@ import UpdateUser from "./UpdateUser";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Link } from "react-router-dom";
 import { auth } from "../Services/firebase";
-import { Button } from "@material-ui/core";
 import contentBg from "../assets/images/chat-img5.jpg";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import { useDispatch, useSelector } from "react-redux";
@@ -255,7 +252,7 @@ function Main(props) {
 
               <div className="nav-left">
                 <div className="icon-container">
-                  {currentUser.photoUrl === "" ? (
+                  {currentUser.photoUrl === "" || null ? (
                     <img
                       src={userProfile}
                       alt="media app"

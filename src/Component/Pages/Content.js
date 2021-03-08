@@ -172,15 +172,15 @@ export default function Content() {
                     <CardMedia
                       component="video"
                       image={allposts[key].postPic}
-                      title="title"
+                      title="post Vedio"
                       controls
-                      autoPlay
+                      // autoPlay
                     />
                   ) : (
                     <CardMedia
                       image={allposts[key].postPic}
                       className={classes.media}
-                      title="Paella dish"
+                      title="post Image"
                     />
                   )}
                 </>

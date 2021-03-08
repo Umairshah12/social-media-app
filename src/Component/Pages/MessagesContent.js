@@ -58,11 +58,11 @@ function MessagesContent(props) {
                 <div>
                   <CardMedia
                     component="video"
-                    image={props.messageImage}
+                    img={props.messageImage}
                     title="title"
                     className="message-image"
                     controls
-                    // autoPlay
+                    autoPlay
                   />
                 </div>
               </>
